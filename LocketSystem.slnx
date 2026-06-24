@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="LocketSystem.Application/LocketSystem.Application.csproj" />
+  <Project Path="LocketSystem.Domain/LocketSystem.Domain.csproj" />
+  <Project Path="LocketSystem.Infrastructure/LocketSystem.Infrastructure.csproj" />
+  <Project Path="LocketSystem.Web/LocketSystem.Web.csproj" />
+</Solution>
