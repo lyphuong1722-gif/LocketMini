@@ -6,8 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace LocketMini.Infrastructure.Persistence;
 
 /// <summary>
-/// Seed dữ liệu mẫu tương ứng với INSERT mẫu trong SQL gốc.
-/// Chỉ chạy khi DB chưa có dữ liệu.
+/// Seed dữ liệu mẫu. Chỉ chạy khi DB chưa có dữ liệu.
 /// </summary>
 public sealed class DbSeeder
 {
@@ -41,27 +40,32 @@ public sealed class DbSeeder
         nam.SetProfile("Tran Van Nam", "Yeu thich cong nghe");
         linh.SetProfile("Le Thi Linh", "Sinh vien");
 
-        await _db.Users.AddRangeAsync(admin, nam, linh, ct);
-
-        // SaveChanges để có UserId từ IDENTITY trước khi dùng các relation
+        await _db.Users.AddRangeAsync(new[] { admin, nam, linh }, ct);
         await _db.SaveChangesAsync(ct);
 
-        // ── Friends ───────────────────────────────────────────────────────
-        // Reload với friends để domain check
-        var adminWithFriends = await _db.Users
+        // ── Reload để có UserId từ IDENTITY ──────────────────────────────
+        // Dùng .Value để so sánh string thay vì Value Object
+        var adminUser = await _db.Users
             .Include(u => u.Friends)
-            .FirstAsync(u => u.Username == "admin", ct);
+            .FirstAsync(u => u.Username.Value == "admin", ct);
 
-        var namUser = await _db.Users.FirstAsync(u => u.Username == "nam", ct);
-        var linhUser = await _db.Users.FirstAsync(u => u.Username == "linh", ct);
+        var namUser = await _db.Users
+            .FirstAsync(u => u.Username.Value == "nam", ct);
 
-        adminWithFriends.AddFriend(namUser);
-        adminWithFriends.AddFriend(linhUser);
+        var linhUser = await _db.Users
+            .FirstAsync(u => u.Username.Value == "linh", ct);
+
+        // ── Friends ───────────────────────────────────────────────────────
+        adminUser.AddFriend(namUser);
+        adminUser.AddFriend(linhUser);
         await _db.SaveChangesAsync(ct);
 
         // ── Posts ─────────────────────────────────────────────────────────
-        var adminFresh = await _db.Users.FirstAsync(u => u.Username == "admin", ct);
-        var namFresh = await _db.Users.FirstAsync(u => u.Username == "nam", ct);
+        var adminFresh = await _db.Users
+            .FirstAsync(u => u.Username.Value == "admin", ct);
+
+        var namFresh = await _db.Users
+            .FirstAsync(u => u.Username.Value == "nam", ct);
 
         var post1 = adminFresh.AddPost("Xin chao moi nguoi", "img1.jpg");
         var post2 = namFresh.AddPost("Bai viet dau tien", "img2.jpg");
@@ -69,7 +73,6 @@ public sealed class DbSeeder
         await _db.SaveChangesAsync(ct);
 
         // ── Likes & Comments ──────────────────────────────────────────────
-        // Phải load lại post với details để domain validation không bị lỗi
         var post1WithDetails = await _db.Posts
             .Include(p => p.Likes)
             .Include(p => p.Comments)

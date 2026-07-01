@@ -1,0 +1,67 @@
+﻿@model LocketMini.Web.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Đăng ký"; Layout = "_Layout";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-sm-10 col-md-7 col-lg-5">
+
+        <div class="text-center mb-4">
+            <h2 class="fw-800" style="font-size:2rem">📸 LocketMini</h2>
+            <p class="text-muted">Tạo tài khoản miễn phí</p>
+        </div>
+
+        <div class="card border-0 shadow-sm" style="border-radius:1.25rem">
+            <div class="card-body p-4">
+                <h5 class="fw-700 mb-4">Đăng ký tài khoản</h5>
+
+                <form asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 small"
+                         style="display:@(ViewData.ModelState.IsValid ? "none" : "block")"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label fw-600 small"></label>
+                        <input asp-for="Username" class="form-control" placeholder="chỉ chữ thường, số, dấu _" autocomplete="username" />
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col">
+                            <label asp-for="Password" class="form-label fw-600 small"></label>
+                            <input asp-for="Password" class="form-control" placeholder="tối thiểu 6 ký tự" autocomplete="new-password" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col">
+                            <label asp-for="ConfirmPassword" class="form-label fw-600 small"></label>
+                            <input asp-for="ConfirmPassword" class="form-control" placeholder="nhập lại mật khẩu" autocomplete="new-password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label fw-600 small"></label>
+                        <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A (tuỳ chọn)" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Bio" class="form-label fw-600 small"></label>
+                        <textarea asp-for="Bio" class="form-control" rows="2" placeholder="Vài dòng giới thiệu... (tuỳ chọn)"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-orange w-100 py-2 fw-600">Tạo tài khoản</button>
+                </form>
+            </div>
+        </div>
+
+        <p class="text-center mt-3 small text-muted">
+            Đã có tài khoản?
+            <a asp-action="Login" class="fw-600" style="color:var(--locket-primary)">Đăng nhập</a>
+        </p>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

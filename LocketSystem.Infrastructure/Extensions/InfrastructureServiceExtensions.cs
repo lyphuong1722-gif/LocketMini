@@ -4,17 +4,18 @@ using LocketMini.Domain.Interfaces.Repositories;
 using LocketMini.Infrastructure.Persistence;
 using LocketMini.Infrastructure.Persistence.Repositories;
 using LocketMini.Infrastructure.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 namespace LocketMini.Infrastructure.Extensions;
 
 public static class InfrastructureServiceExtensions
 {
+    /// <summary>
+    /// Đăng ký DB, Repositories, Domain services, Application services, Settings, Seeder.
+    /// KHÔNG đăng ký Authentication — để tầng Presentation tự chọn scheme (Cookie / JWT Bearer).
+    /// </summary>
     public static IServiceCollection AddInfrastructureServices(
         this IServiceCollection services,
         IConfiguration config)
@@ -40,6 +41,8 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IEmailService, SmtpEmailService>();
         services.AddScoped<INotificationService, NotificationService>();
+
+        // ── HttpContext & CurrentUser ─────────────────────────────────────
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, CurrentUserService>();
 
@@ -50,37 +53,11 @@ public static class InfrastructureServiceExtensions
         // ── Seeder ────────────────────────────────────────────────────────
         services.AddScoped<DbSeeder>();
 
-        // ── JWT Authentication ────────────────────────────────────────────
-        var jwtSection = config.GetSection(JwtSettings.Section);
-        var secretKey = jwtSection["SecretKey"] ?? throw new InvalidOperationException("JwtSettings:SecretKey chưa được cấu hình.");
-
-        services
-            .AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-                    ValidateIssuer = true,
-                    ValidIssuer = jwtSection["Issuer"],
-                    ValidateAudience = true,
-                    ValidAudience = jwtSection["Audience"],
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero,
-                };
-            });
-
         return services;
     }
 
     /// <summary>
     /// Áp dụng migration và seed khi app khởi động.
-    /// Gọi trong Program.cs: await app.MigrateAndSeedAsync();
     /// </summary>
     public static async Task MigrateAndSeedAsync(this IServiceProvider services)
     {

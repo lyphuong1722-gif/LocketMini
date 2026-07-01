@@ -1,0 +1,143 @@
+﻿@model LocketMini.Web.Models.UserProfileViewModel
+@using System.Security.Claims
+@{
+    ViewData["Title"] = Model.User.Username + " – Trang cá nhân";
+    Layout = "_Layout";
+    var myId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+}
+
+<div class="container" style="max-width:760px">
+
+    <!-- Profile header -->
+    <div class="card border-0 shadow-sm mb-4" style="border-radius:1.25rem">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center gap-4">
+                <span class="avatar avatar-lg">@Model.User.Username.Substring(0, 1).ToUpper()</span>
+                <div class="flex-grow-1">
+                    <h4 class="mb-0 fw-800">@Model.User.Username</h4>
+                    @if (!string.IsNullOrWhiteSpace(Model.User.FullName))
+                    {
+                        <div class="text-muted">@Model.User.FullName</div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.User.Bio))
+                    {
+                        <p class="mt-2 mb-0 small">@Model.User.Bio</p>
+                    }
+                </div>
+
+                <!-- Actions -->
+                @if (!Model.IsMyself)
+                {
+                    <div class="d-flex flex-column gap-2">
+                        @if (Model.IsFriend)
+                        {
+                            <form asp-controller="Friends" asp-action="Remove" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="targetUserId" value="@Model.User.UserId" />
+                                <input type="hidden" name="returnUrl"
+                                       value="@Url.Action("Profile", "Users", new { id = Model.User.UserId })" />
+                                <button class="btn btn-outline-secondary btn-sm" type="submit"
+                                        onclick="return confirm('Huỷ kết bạn?')">
+                                    <i class="bi bi-person-dash me-1"></i>Huỷ kết bạn
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-controller="Friends" asp-action="Add" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="targetUserId" value="@Model.User.UserId" />
+                                <input type="hidden" name="returnUrl"
+                                       value="@Url.Action("Profile", "Users", new { id = Model.User.UserId })" />
+                                <button class="btn btn-orange btn-sm" type="submit">
+                                    <i class="bi bi-person-plus me-1"></i>Kết bạn
+                                </button>
+                            </form>
+                        }
+                        <a asp-controller="Friends" asp-action="Mutual"
+                           asp-route-userId="@Model.User.UserId"
+                           class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-people me-1"></i>Bạn chung
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Auth" asp-action="ChangePassword" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-shield-lock me-1"></i>Đổi mật khẩu
+                    </a>
+                }
+            </div>
+
+            <!-- Stats -->
+            <div class="d-flex gap-4 mt-4 pt-3 border-top">
+                <div class="text-center">
+                    <div class="fw-800 fs-5">@Model.Posts.Count</div>
+                    <div class="text-muted small">Bài viết</div>
+                </div>
+                <div class="text-center">
+                    <div class="fw-800 fs-5">@Model.Posts.Sum(p => p.LikeCount)</div>
+                    <div class="text-muted small">Lượt thích</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Posts grid -->
+    <h6 class="fw-700 mb-3"><i class="bi bi-grid me-2"></i>Bài viết</h6>
+
+    @if (!Model.Posts.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <div style="font-size:2.5rem">📷</div>
+            <p class="mt-2">Chưa có bài viết nào.</p>
+            @if (Model.IsMyself)
+            {
+                <a asp-controller="Posts" asp-action="Create" class="btn btn-orange btn-sm">
+                    <i class="bi bi-plus-lg me-1"></i>Đăng bài đầu tiên
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var post in Model.Posts)
+            {
+                <div class="col-6 col-md-4">
+                    <a asp-controller="Posts" asp-action="Detail" asp-route-id="@post.PostId"
+                       class="text-decoration-none">
+                        <div class="card card-post h-100 position-relative overflow-hidden"
+                             style="border-radius:.75rem">
+                            @if (!string.IsNullOrWhiteSpace(post.ImageUrl))
+                            {
+                                <img src="@post.ImageUrl" alt="post"
+                                     style="height:180px;object-fit:cover;width:100%"
+                                     onerror="this.style.display='none'" />
+                            }
+                            else
+                            {
+                                <div class="d-flex align-items-center justify-content-center bg-light"
+                                     style="height:180px;font-size:2rem">
+                                    📝
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(post.Caption))
+                            {
+                                <div class="card-body p-2">
+                                    <p class="small mb-0 text-truncate">@post.Caption</p>
+                                </div>
+                            }
+                            <div class="position-absolute bottom-0 start-0 end-0 px-2 py-1 d-flex gap-3"
+                                 style="background:rgba(0,0,0,.45);color:#fff;font-size:.8rem">
+                                <span><i class="bi bi-heart-fill me-1" style="color:#f87171"></i>@post.LikeCount</span>
+                                <span><i class="bi bi-chat-fill me-1"></i>@post.CommentCount</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    }
+
+</div>

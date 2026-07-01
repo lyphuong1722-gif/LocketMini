@@ -1,4 +1,6 @@
-﻿namespace LocketMini.Application.Common.Interfaces;
+﻿using MediatR;
+
+namespace LocketMini.Application.Common.Interfaces;
 
 // ── Commands ──────────────────────────────────────────────────────────────────
 

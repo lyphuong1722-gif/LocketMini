@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
-using LocketMini.Application.Common.Exceptions;
+using AppValidationException = LocketMini.Application.Common.Exceptions.ValidationException;
 
 namespace LocketMini.Application.Common.Behaviors;
 
@@ -39,6 +39,6 @@ public sealed class ValidationBehavior<TRequest, TResponse>
                 g => g.Key,
                 g => g.Select(f => f.ErrorMessage).ToArray());
 
-        throw new ValidationException(errors);
+        throw new AppValidationException(errors);
     }
 }

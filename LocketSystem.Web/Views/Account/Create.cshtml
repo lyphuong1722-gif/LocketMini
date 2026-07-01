@@ -1,0 +1,67 @@
+﻿@model LocketMini.Web.Models.CreatePostViewModel
+@{
+    ViewData["Title"] = "Đăng bài mới"; Layout = "_Layout";
+}
+
+<div class="row justify-content-center">
+    <div class="col-sm-10 col-md-7 col-lg-6">
+        <div class="card border-0 shadow-sm" style="border-radius:1.25rem">
+            <div class="card-body p-4">
+                <h5 class="fw-700 mb-1"><i class="bi bi-image me-2"></i>Đăng bài mới</h5>
+                <p class="text-muted small mb-4">Chia sẻ khoảnh khắc với bạn bè của bạn.</p>
+
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 small"
+                         style="display:@(ViewData.ModelState.IsValid ? "none" : "block")"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Caption" class="form-label fw-600 small">Caption</label>
+                        <textarea asp-for="Caption" class="form-control" rows="4"
+                                  placeholder="Bạn đang nghĩ gì?..."></textarea>
+                        <span asp-validation-for="Caption" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ImageUrl" class="form-label fw-600 small">URL ảnh</label>
+                        <input asp-for="ImageUrl" class="form-control"
+                               placeholder="https://example.com/anh.jpg"
+                               oninput="previewImg(this.value)" />
+                        <span asp-validation-for="ImageUrl" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Preview -->
+                    <div id="img-preview" class="mb-3 d-none">
+                        <img id="preview-img" src="" alt="preview"
+                             class="img-fluid rounded-3 w-100"
+                             style="max-height:300px;object-fit:cover"
+                             onerror="document.getElementById('img-preview').classList.add('d-none')" />
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-orange fw-600 flex-grow-1">
+                            <i class="bi bi-send me-1"></i>Đăng bài
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Huỷ</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewImg(url) {
+            const el = document.getElementById('img-preview');
+            const img = document.getElementById('preview-img');
+            if (url && url.startsWith('http')) {
+                img.src = url;
+                el.classList.remove('d-none');
+            } else {
+                el.classList.add('d-none');
+            }
+        }
+    </script>
+}

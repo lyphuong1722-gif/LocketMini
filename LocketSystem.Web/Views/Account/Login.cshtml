@@ -1,0 +1,56 @@
+﻿@model LocketMini.Web.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập"; Layout = "_Layout";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-sm-10 col-md-6 col-lg-4">
+
+        <div class="text-center mb-4">
+            <h2 class="fw-800" style="font-size:2rem">📸 LocketMini</h2>
+            <p class="text-muted">Chia sẻ khoảnh khắc cùng bạn bè</p>
+        </div>
+
+        <div class="card border-0 shadow-sm" style="border-radius:1.25rem">
+            <div class="card-body p-4">
+                <h5 class="fw-700 mb-4">Đăng nhập</h5>
+
+                <form asp-action="Login" method="post">
+                    <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 small" style="display:@(ViewData.ModelState.IsValid ? "none" : "block")"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label fw-600 small"></label>
+                        <input asp-for="Username" class="form-control" placeholder="tên đăng nhập" autocomplete="username" />
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-600 small"></label>
+                        <input asp-for="Password" class="form-control" placeholder="••••••" autocomplete="current-password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label small">Ghi nhớ đăng nhập</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-orange w-100 py-2 fw-600">Đăng nhập</button>
+                </form>
+            </div>
+        </div>
+
+        <p class="text-center mt-3 small text-muted">
+            Chưa có tài khoản?
+            <a asp-action="Register" class="fw-600" style="color:var(--locket-primary)">Đăng ký ngay</a>
+        </p>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

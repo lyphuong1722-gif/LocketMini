@@ -24,6 +24,9 @@ public interface IUserRepository : IRepository<User>
 
     /// <summary>Lấy user kèm danh sách bạn bè (Friends).</summary>
     Task<User?> GetWithFriendsAsync(int userId, CancellationToken ct = default);
+
+    /// <summary>Tìm kiếm user theo username hoặc FullName.</summary>
+    Task<IReadOnlyList<User>> SearchAsync(string keyword, CancellationToken ct = default);
 }
 
 // ── Post ──────────────────────────────────────────────────────────────────────

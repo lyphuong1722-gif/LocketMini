@@ -5,7 +5,6 @@ using LocketMini.Application.DTOs;
 using LocketMini.Domain.Entities;
 using LocketMini.Domain.Interfaces;
 using LocketMini.Domain.Interfaces.Repositories;
-using LocketSystem.Application.Common.Interfaces;
 using MediatR;
 
 namespace LocketMini.Application.Features.Auth.Commands;
