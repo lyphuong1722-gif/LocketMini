@@ -1,0 +1,249 @@
+﻿/* ============================================================
+   GALAXY OCEAN THEME — dùng cho trang Feed (Posts/Index)
+   Tông chủ đạo: xanh biển sâu -> xanh dương -> cyan, nền dạng
+   vũ trụ có sao lấp lánh (thuần CSS, không cần ảnh).
+   ============================================================ */
+
+:root {
+    --galaxy-deep: #020617;
+    --galaxy-mid: #0b1d3a;
+    --galaxy-navy: #123a6b;
+    --galaxy-blue: #1d4ed8;
+    --galaxy-cyan: #22d3ee;
+    --galaxy-glow: rgba(34, 211, 238, .35);
+    --galaxy-card-bg: rgba(15, 27, 51, .55);
+    --galaxy-card-border: rgba(96, 165, 250, .25);
+    --galaxy-text: #e8f1ff;
+    --galaxy-muted: #9db4d9;
+}
+
+/* ── Backdrop vũ trụ, phủ toàn màn hình phía sau nội dung Feed ── */
+.feed-galaxy {
+    position: relative;
+    color: var(--galaxy-text);
+}
+
+.galaxy-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(circle at 20% 20%, rgba(34,211,238,.18), transparent 45%), radial-gradient(circle at 80% 0%, rgba(29,78,216,.25), transparent 40%), linear-gradient(160deg, var(--galaxy-deep) 0%, var(--galaxy-mid) 45%, var(--galaxy-navy) 75%, var(--galaxy-blue) 100%);
+    overflow: hidden;
+}
+
+    .galaxy-backdrop::before,
+    .galaxy-backdrop::after {
+        content: "";
+        position: absolute;
+        /* dàn rộng hơn viewport để khi translate không lộ mép */
+        top: -200px;
+        left: -200px;
+        right: -200px;
+        bottom: -200px;
+        background-repeat: repeat;
+        opacity: .55;
+        will-change: transform;
+    }
+
+    /* Dùng CHUNG 1 kích thước ô lặp (200px) cho mọi lớp sao,
+   để khoảng dịch chuyển trong keyframes luôn là số nguyên lần
+   kích thước ô -> loop tuyệt đối mượt, không bị giật/nhấp nháy. */
+    .galaxy-backdrop::before {
+        background-image: radial-gradient(white 1px, transparent 1.5px), radial-gradient(white .6px, transparent 1.2px);
+        background-size: 200px 200px, 200px 200px;
+        background-position: 0 0, 100px 140px;
+        animation: galaxy-drift-1 100s linear infinite;
+    }
+
+    .galaxy-backdrop::after {
+        background-image: radial-gradient(var(--galaxy-cyan) 1px, transparent 1.5px);
+        background-size: 200px 200px;
+        background-position: 40px 60px;
+        opacity: .3;
+        animation: galaxy-drift-2 160s linear infinite;
+    }
+
+/* Khoảng dịch = đúng 1 (hoặc nhiều) ô lặp 200px -> điểm cuối
+   trông giống hệt điểm đầu, không có bước nhảy khi lặp lại. */
+@keyframes galaxy-drift-1 {
+    from {
+        transform: translate3d(0, 0, 0);
+    }
+
+    to {
+        transform: translate3d(-200px, -200px, 0);
+    }
+}
+
+@keyframes galaxy-drift-2 {
+    from {
+        transform: translate3d(0, 0, 0);
+    }
+
+    to {
+        transform: translate3d(200px, -200px, 0);
+    }
+}
+
+/* ── Thanh điều hướng nổi trên nền galaxy (kính mờ) ── */
+.feed-galaxy .navbar-locket {
+    background: rgba(8, 18, 38, .55) !important;
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--galaxy-card-border);
+    box-shadow: 0 4px 24px rgba(2, 6, 23, .4);
+}
+
+.feed-galaxy .nav-link,
+.feed-galaxy .navbar-brand-locket span {
+    color: var(--galaxy-text) !important;
+}
+
+/* ── Card bài viết dạng "kính vũ trụ" ── */
+.feed-galaxy .card-post {
+    background: var(--galaxy-card-bg);
+    border: 1px solid var(--galaxy-card-border);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 30px rgba(2, 6, 23, .45);
+    color: var(--galaxy-text);
+}
+
+    .feed-galaxy .card-post:hover {
+        box-shadow: 0 0 0 1px var(--galaxy-glow), 0 12px 36px rgba(2,6,23,.55);
+        transform: translateY(-3px);
+    }
+
+    .feed-galaxy .card-post .text-muted {
+        color: var(--galaxy-muted) !important;
+    }
+
+    .feed-galaxy .card-post a.text-dark {
+        color: var(--galaxy-text) !important;
+    }
+
+/* ── Khu vực reaction (thay cho nút tim đơn giản) ── */
+.reaction-wrap {
+    position: relative;
+    display: inline-block;
+}
+
+.reaction-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    border: none;
+    background: rgba(148, 197, 255, .08);
+    color: var(--galaxy-muted);
+    border-radius: 999px;
+    padding: .35rem .9rem;
+    font-size: .9rem;
+    font-weight: 600;
+    transition: background .15s, color .15s, transform .1s;
+}
+
+    .reaction-trigger:hover {
+        background: rgba(34, 211, 238, .15);
+        transform: translateY(-1px);
+    }
+
+    .reaction-trigger.has-reacted {
+        color: #fff;
+    }
+
+.reaction-current-icon {
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+/* Bảng chọn cảm xúc — hiện phía trên nút khi hover/click */
+.reaction-bar {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    display: flex;
+    gap: .25rem;
+    padding: .4rem .5rem;
+    background: rgba(10, 22, 45, .92);
+    border: 1px solid var(--galaxy-card-border);
+    border-radius: 999px;
+    box-shadow: 0 10px 30px rgba(2,6,23,.55);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px) scale(.92);
+    transition: opacity .15s, transform .15s, visibility .15s;
+    z-index: 20;
+    white-space: nowrap;
+}
+
+    .reaction-bar.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0) scale(1);
+    }
+
+.reaction-emoji {
+    border: none;
+    background: transparent;
+    font-size: 1.6rem;
+    line-height: 1;
+    padding: .25rem;
+    cursor: pointer;
+    transition: transform .15s ease;
+    border-radius: 50%;
+}
+
+    .reaction-emoji:hover {
+        transform: translateY(-6px) scale(1.3);
+    }
+
+/* Tooltip nhỏ tên cảm xúc khi hover từng emoji */
+.reaction-emoji {
+    position: relative;
+}
+
+    .reaction-emoji::after {
+        content: attr(data-label);
+        position: absolute;
+        bottom: 120%;
+        left: 50%;
+        transform: translateX(-50%) translateY(4px);
+        background: #0f172a;
+        color: #fff;
+        font-size: .68rem;
+        font-weight: 600;
+        padding: .15rem .5rem;
+        border-radius: .4rem;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .12s;
+    }
+
+    .reaction-emoji:hover::after {
+        opacity: 1;
+    }
+
+/* Nút bình luận đồng bộ theme */
+.feed-galaxy .btn-like {
+    color: var(--galaxy-muted);
+}
+
+    .feed-galaxy .btn-like:hover {
+        background: rgba(34, 211, 238, .12);
+    }
+
+/* Nút "Đăng bài" / phân trang giữ nổi bật trên nền tối */
+.feed-galaxy .btn-outline-secondary {
+    color: var(--galaxy-text);
+    border-color: var(--galaxy-card-border);
+}
+
+    .feed-galaxy .btn-outline-secondary:hover {
+        background: rgba(96,165,250,.15);
+        color: #fff;
+    }
+
+.feed-galaxy .btn-light.disabled {
+    background: rgba(148,197,255,.08);
+    color: var(--galaxy-text);
+}

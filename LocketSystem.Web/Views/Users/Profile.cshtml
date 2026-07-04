@@ -107,7 +107,7 @@
                              style="border-radius:.75rem">
                             @if (!string.IsNullOrWhiteSpace(post.ImageUrl))
                             {
-                                <img src="@post.ImageUrl" alt="post"
+                                <img src="@post.ImageUrl.ToWebPath()" alt="post"
                                      style="height:180px;object-fit:cover;width:100%"
                                      onerror="this.style.display='none'" />
                             }

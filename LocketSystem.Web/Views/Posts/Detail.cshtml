@@ -54,7 +54,7 @@
 
         @if (!string.IsNullOrWhiteSpace(post.ImageUrl))
         {
-            <img src="@post.ImageUrl" class="post-image" alt="post"
+            <img src="@post.ImageUrl.ToWebPath()" class="post-image" alt="post"
                  onerror="this.src='/img/no-image.png'" />
         }
 
