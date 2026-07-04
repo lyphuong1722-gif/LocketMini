@@ -4,6 +4,7 @@ using LocketMini.Application.Features.Comments.Queries;
 using LocketSystem.Application.Features.Comments.Commands;
 using LocketSystem.Web.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LocketSystem.Web.Controllers;
@@ -11,6 +12,18 @@ namespace LocketSystem.Web.Controllers;
 [Authorize]
 public class PostsController : BaseController
 {
+    private readonly IWebHostEnvironment _env;
+
+    private static readonly string[] AllowedImageExtensions =
+        { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+
+    private const long MaxImageSizeBytes = 10 * 1024 * 1024; // 10 MB
+
+    public PostsController(IWebHostEnvironment env)
+    {
+        _env = env;
+    }
+
     // ── GET /Posts  (Feed) ────────────────────────────────────────────────
     public async Task<IActionResult> Index(int page = 1)
     {
@@ -54,8 +67,43 @@ public class PostsController : BaseController
     {
         if (!ModelState.IsValid) return View(model);
 
+        var imageUrl = model.ImageUrl;
+
+        // Nếu người dùng chọn file ảnh từ máy, ưu tiên lưu file này
+        // và dùng đường dẫn web tương ứng làm ImageUrl.
+        if (model.ImageFile is { Length: > 0 })
+        {
+            var extension = Path.GetExtension(model.ImageFile.FileName).ToLowerInvariant();
+
+            if (!AllowedImageExtensions.Contains(extension))
+            {
+                ModelState.AddModelError(nameof(model.ImageFile),
+                    "Định dạng ảnh không được hỗ trợ (chỉ chấp nhận JPG, PNG, GIF, WEBP).");
+                return View(model);
+            }
+
+            if (model.ImageFile.Length > MaxImageSizeBytes)
+            {
+                ModelState.AddModelError(nameof(model.ImageFile), "Ảnh không được vượt quá 10MB.");
+                return View(model);
+            }
+
+            var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "posts");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var fileName = $"{Guid.NewGuid():N}{extension}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            await using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await model.ImageFile.CopyToAsync(stream);
+            }
+
+            imageUrl = $"/uploads/posts/{fileName}";
+        }
+
         var result = await Mediator.Send(
-            new CreatePostCommand(CurrentUserId, model.Caption, model.ImageUrl));
+            new CreatePostCommand(CurrentUserId, model.Caption, imageUrl));
 
         if (result.IsFailure)
         {

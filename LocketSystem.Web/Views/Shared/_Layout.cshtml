@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] – LocketMini</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/galaxy-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     @await RenderSectionAsync("Styles", required: false)
     <style>
@@ -37,17 +38,24 @@
             .navbar-brand-locket {
                 font-weight: 800;
                 font-size: 1.35rem;
-                background: linear-gradient(135deg, var(--locket-primary), var(--locket-accent));
+                letter-spacing: -.5px;
+                background: linear-gradient(90deg, #93c5fd 0%, #22d3ee 40%, #38bdf8 70%, #e0f2fe 100%);
                 -webkit-background-clip: text;
                 background-clip: text;
-                color: transparent !important;
-                letter-spacing: -.5px;
+                color: transparent;
+                -webkit-text-fill-color: transparent;
             }
 
-                .navbar-brand-locket span {
-                    color: var(--locket-text);
-                    -webkit-text-fill-color: var(--locket-text);
+            /* Không đặt màu riêng cho .brand-text / .brand-text-dark:
+                           để chúng kế thừa gradient từ phần tử cha, tạo hiệu ứng
+                           loang màu liền mạch xuyên suốt "LocketMini". */
+
+            /* Fallback cho trình duyệt không hỗ trợ background-clip:text */
+            @@supports not (background-clip: text) {
+                .navbar-brand-locket {
+                    color: var(--locket-primary-light);
                 }
+            }
 
             /* Alerts */
             .alert-toast {
@@ -145,7 +153,8 @@
             }
     </style>
 </head>
-<body>
+<body class="feed-galaxy">
+    <div class="galaxy-backdrop"></div>
 
     <nav class="navbar navbar-expand-md navbar-locket sticky-top">
         <div class="container">

@@ -1,4 +1,5 @@
 ﻿using LocketMini.Application.Features.Friends.Commands;
+using LocketMini.Application.Features.Friends.Queries;
 using LocketMini.Application.Features.Posts.Queries;
 using LocketMini.Application.Features.Users.Queries;
 using LocketSystem.Web.Models;
@@ -20,6 +21,8 @@ public class UsersController : BaseController
         var postsResult = await Mediator.Send(new GetUserPostsQuery(CurrentUserId, id));
         // CheckFriendshipCommand trả Result<bool>
         var friendResult = await Mediator.Send(new CheckFriendshipCommand(CurrentUserId, id));
+        // Danh sách bạn bè của user đang xem để đếm số lượng
+        var friendListResult = await Mediator.Send(new GetFriendListQuery(id));
 
         return View(new UserProfileViewModel
         {
@@ -27,6 +30,7 @@ public class UsersController : BaseController
             Posts = postsResult.IsSuccess ? postsResult.Value : [],
             IsFriend = friendResult.IsSuccess && friendResult.Value,
             IsMyself = id == CurrentUserId,
+            FriendCount = friendListResult.IsSuccess ? friendListResult.Value.Count : 0,
         });
     }
 

@@ -59,18 +59,16 @@
                         </a>
                     </div>
                 }
-                else
-                {
-                    <a asp-controller="Auth" asp-action="ChangePassword" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-shield-lock me-1"></i>Đổi mật khẩu
-                    </a>
-                }
             </div>
 
             <div class="d-flex gap-4 mt-4 pt-3 border-top">
                 <div class="text-center">
                     <div class="fw-800 fs-5">@Model.Posts.Count</div>
                     <div class="text-muted small">Bài viết</div>
+                </div>
+                <div class="text-center">
+                    <div class="fw-800 fs-5">@Model.FriendCount</div>
+                    <div class="text-muted small">Bạn bè</div>
                 </div>
                 <div class="text-center">
                     <div class="fw-800 fs-5">@Model.Posts.Sum(p => p.LikeCount)</div>
@@ -103,32 +101,37 @@
                 <div class="col-6 col-md-4">
                     <a asp-controller="Posts" asp-action="Detail" asp-route-id="@post.PostId"
                        class="text-decoration-none">
-                        <div class="card card-post h-100 position-relative overflow-hidden"
-                             style="border-radius:.75rem">
-                            @if (!string.IsNullOrWhiteSpace(post.ImageUrl))
-                            {
-                                <img src="@post.ImageUrl.ToWebPath()" alt="post"
-                                     style="height:180px;object-fit:cover;width:100%"
-                                     onerror="this.style.display='none'" />
-                            }
-                            else
-                            {
-                                <div class="d-flex align-items-center justify-content-center bg-light"
-                                     style="height:180px;font-size:2rem">
-                                    📝
+                        <div class="card card-post h-100 overflow-hidden" style="border-radius:.75rem">
+
+                            <!-- Khối ảnh + thanh thống kê (❤️/💬) chỉ đè lên ẢNH,
+                                 KHÔNG đè lên caption bên dưới -->
+                            <div class="position-relative">
+                                @if (!string.IsNullOrWhiteSpace(post.ImageUrl))
+                                {
+                                    <img src="@post.ImageUrl.ToWebPath()" alt="post"
+                                         style="height:180px;object-fit:cover;width:100%"
+                                         onerror="this.style.display='none'" />
+                                }
+                                else
+                                {
+                                    <div class="d-flex align-items-center justify-content-center bg-light"
+                                         style="height:180px;font-size:2rem">
+                                        📝
+                                    </div>
+                                }
+                                <div class="position-absolute bottom-0 start-0 end-0 px-2 py-1 d-flex gap-3"
+                                     style="background:rgba(0,0,0,.45);color:#fff;font-size:.8rem">
+                                    <span><i class="bi bi-heart-fill me-1" style="color:#f87171"></i>@post.LikeCount</span>
+                                    <span><i class="bi bi-chat-fill me-1"></i>@post.CommentCount</span>
                                 </div>
-                            }
+                            </div>
+
                             @if (!string.IsNullOrWhiteSpace(post.Caption))
                             {
                                 <div class="card-body p-2">
                                     <p class="small mb-0 text-truncate">@post.Caption</p>
                                 </div>
                             }
-                            <div class="position-absolute bottom-0 start-0 end-0 px-2 py-1 d-flex gap-3"
-                                 style="background:rgba(0,0,0,.45);color:#fff;font-size:.8rem">
-                                <span><i class="bi bi-heart-fill me-1" style="color:#f87171"></i>@post.LikeCount</span>
-                                <span><i class="bi bi-chat-fill me-1"></i>@post.CommentCount</span>
-                            </div>
                         </div>
                     </a>
                 </div>

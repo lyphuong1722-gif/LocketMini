@@ -1,5 +1,5 @@
 ﻿/* ============================================================
-   GALAXY OCEAN THEME — dùng cho trang Feed (Posts/Index)
+   GALAXY OCEAN THEME — dùng cho TOÀN BỘ trang trong LocketMini
    Tông chủ đạo: xanh biển sâu -> xanh dương -> cyan, nền dạng
    vũ trụ có sao lấp lánh (thuần CSS, không cần ảnh).
    ============================================================ */
@@ -17,7 +17,7 @@
     --galaxy-muted: #9db4d9;
 }
 
-/* ── Backdrop vũ trụ, phủ toàn màn hình phía sau nội dung Feed ── */
+/* ── Backdrop vũ trụ, phủ toàn màn hình phía sau nội dung ── */
 .feed-galaxy {
     position: relative;
     color: var(--galaxy-text);
@@ -93,8 +93,7 @@
     box-shadow: 0 4px 24px rgba(2, 6, 23, .4);
 }
 
-.feed-galaxy .nav-link,
-.feed-galaxy .navbar-brand-locket span {
+.feed-galaxy .nav-link {
     color: var(--galaxy-text) !important;
 }
 
@@ -247,3 +246,144 @@
     background: rgba(148,197,255,.08);
     color: var(--galaxy-text);
 }
+
+/* ============================================================
+   MỞ RỘNG: áp dụng đồng bộ màu/nền cho TẤT CẢ các trang khác
+   (Login, Register, Đổi mật khẩu, Trang cá nhân, Tìm kiếm,
+   Bạn bè, Bạn chung, Thống kê bài viết, Error...)
+   ============================================================ */
+
+.feed-galaxy h1, .feed-galaxy h2, .feed-galaxy h3,
+.feed-galaxy h4, .feed-galaxy h5, .feed-galaxy h6 {
+    color: var(--galaxy-text);
+}
+
+.feed-galaxy .text-dark {
+    color: var(--galaxy-text) !important;
+}
+
+.feed-galaxy .text-muted {
+    color: var(--galaxy-muted) !important;
+}
+
+/* Card mặc định của Bootstrap (không phải .card-post) dùng ở
+   Login/Register/Profile/Search/Friends/Stats... cũng có kính mờ đồng bộ */
+.feed-galaxy .card:not(.card-post) {
+    background: var(--galaxy-card-bg);
+    border: 1px solid var(--galaxy-card-border);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 30px rgba(2, 6, 23, .45);
+    color: var(--galaxy-text);
+}
+
+    .feed-galaxy .card:not(.card-post) .text-muted {
+        color: var(--galaxy-muted) !important;
+    }
+
+/* Form controls (input, textarea, select) */
+.feed-galaxy .form-control,
+.feed-galaxy .form-select {
+    background: rgba(255, 255, 255, .06);
+    border-color: var(--galaxy-card-border);
+    color: var(--galaxy-text);
+}
+
+    .feed-galaxy .form-control::placeholder {
+        color: var(--galaxy-muted);
+        opacity: 1;
+    }
+
+    .feed-galaxy .form-control:focus,
+    .feed-galaxy .form-select:focus {
+        background: rgba(255, 255, 255, .1);
+        color: var(--galaxy-text);
+        border-color: var(--galaxy-cyan);
+        box-shadow: 0 0 0 .2rem rgba(34, 211, 238, .2);
+    }
+
+    .feed-galaxy .form-control:disabled,
+    .feed-galaxy .form-control[readonly] {
+        background: rgba(255, 255, 255, .03);
+        color: var(--galaxy-muted);
+    }
+
+.feed-galaxy .form-check-input {
+    background-color: rgba(255, 255, 255, .08);
+    border-color: var(--galaxy-card-border);
+}
+
+.feed-galaxy .form-label {
+    color: var(--galaxy-text);
+}
+
+.feed-galaxy .form-text {
+    color: var(--galaxy-muted);
+}
+
+.feed-galaxy .input-group-text {
+    background: rgba(255, 255, 255, .06);
+    border-color: var(--galaxy-card-border);
+    color: var(--galaxy-text);
+}
+
+/* List group (Friends, Search results, Mutual friends...) */
+.feed-galaxy .list-group-item {
+    background: transparent;
+    border-color: var(--galaxy-card-border);
+    color: var(--galaxy-text);
+}
+
+/* Nền xám nhạt bootstrap (bg-light) dùng trong bình luận, thống kê... */
+.feed-galaxy .bg-light {
+    background: rgba(148, 197, 255, .08) !important;
+    color: var(--galaxy-text);
+}
+
+/* Link chung (không phải nút hoặc dropdown-item) */
+.feed-galaxy a:not(.btn):not(.dropdown-item):not(.navbar-brand) {
+    color: var(--galaxy-cyan);
+}
+
+/* Dropdown menu (menu 3 chấm, avatar menu...) */
+.feed-galaxy .dropdown-menu {
+    background: rgba(10, 22, 45, .95);
+    border: 1px solid var(--galaxy-card-border);
+}
+
+.feed-galaxy .dropdown-item {
+    color: var(--galaxy-text);
+}
+
+    .feed-galaxy .dropdown-item:hover,
+    .feed-galaxy .dropdown-item:focus {
+        background: rgba(34, 211, 238, .15);
+        color: #fff;
+    }
+
+/* Validation summary / lỗi form */
+.feed-galaxy .alert-danger {
+    background: rgba(239, 68, 68, .12);
+    border-color: rgba(239, 68, 68, .35);
+    color: #fecaca;
+}
+
+.feed-galaxy .text-danger {
+    color: #f87171 !important;
+}
+
+/* border-top / border dùng để ngăn cách trong Profile, Stats... */
+.feed-galaxy .border-top {
+    border-color: var(--galaxy-card-border) !important;
+}
+
+/* Nút "disabled" (số trang hiện tại) */
+.feed-galaxy .btn-light {
+    background: rgba(148, 197, 255, .08);
+    color: var(--galaxy-text);
+    border-color: var(--galaxy-card-border);
+}
+
+    .feed-galaxy .btn-light:hover {
+        background: rgba(148, 197, 255, .15);
+        color: #fff;
+    }

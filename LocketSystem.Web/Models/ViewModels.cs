@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using LocketMini.Application.DTOs;
+using Microsoft.AspNetCore.Http;
 
 namespace LocketSystem.Web.Models;
 
@@ -89,6 +90,9 @@ public class CreatePostViewModel
     [Display(Name = "Caption")]
     public string? Caption { get; set; }
 
+    [Display(Name = "Chọn ảnh từ máy")]
+    public IFormFile? ImageFile { get; set; }
+
     [Display(Name = "URL ảnh")]
     [Url(ErrorMessage = "URL ảnh không hợp lệ.")]
     public string? ImageUrl { get; set; }
@@ -102,6 +106,7 @@ public class UserProfileViewModel
     public IReadOnlyList<PostDto> Posts { get; set; } = [];
     public bool IsFriend { get; set; }
     public bool IsMyself { get; set; }
+    public int FriendCount { get; set; }
 }
 
 public class SearchUsersViewModel

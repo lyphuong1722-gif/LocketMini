@@ -4,155 +4,147 @@
     ViewData["Title"] = "Feed"; Layout = "_Layout";
 }
 
-@section Styles {
-    <link rel="stylesheet" href="~/css/galaxy-theme.css" asp-append-version="true" />
-}
+<div class="container" style="max-width:700px">
 
-<div class="feed-galaxy">
-    <div class="galaxy-backdrop"></div>
-
-    <div class="container" style="max-width:700px">
-
-        @if (!Model.Posts.Any())
+    @if (!Model.Posts.Any())
+    {
+        <div class="text-center py-5">
+            <div style="font-size:3rem">📷</div>
+            <h5 class="mt-3">Chưa có bài viết nào</h5>
+            <p class="small text-muted">Thêm bạn bè hoặc đăng bài đầu tiên của bạn!</p>
+            <a asp-action="Create" class="btn btn-orange mt-2">
+                <i class="bi bi-plus-lg me-1"></i>Đăng bài ngay
+            </a>
+        </div>
+    }
+    else
+    {
+        @foreach (var post in Model.Posts)
         {
-            <div class="text-center py-5">
-                <div style="font-size:3rem">📷</div>
-                <h5 class="mt-3">Chưa có bài viết nào</h5>
-                <p class="small text-muted">Thêm bạn bè hoặc đăng bài đầu tiên của bạn!</p>
-                <a asp-action="Create" class="btn btn-orange mt-2">
-                    <i class="bi bi-plus-lg me-1"></i>Đăng bài ngay
-                </a>
-            </div>
-        }
-        else
-        {
-            @foreach (var post in Model.Posts)
-            {
-                <div class="card card-post mb-4">
-                    <div class="card-body pb-2 d-flex align-items-center gap-3">
-                        <a asp-controller="Users" asp-action="Profile" asp-route-id="@post.UserId" class="text-decoration-none">
-                            <span class="avatar">@post.Username.Substring(0, 1).ToUpper()</span>
-                        </a>
-                        <div class="flex-grow-1">
-                            <a asp-controller="Users" asp-action="Profile" asp-route-id="@post.UserId"
-                               class="fw-700 text-dark text-decoration-none">@post.Username</a>
-                            <div class="text-muted" style="font-size:.78rem">
-                                <i class="bi bi-clock me-1"></i>@post.CreatedAt.ToString("dd/MM/yyyy HH:mm")
-                            </div>
+            <div class="card card-post mb-4">
+                <div class="card-body pb-2 d-flex align-items-center gap-3">
+                    <a asp-controller="Users" asp-action="Profile" asp-route-id="@post.UserId" class="text-decoration-none">
+                        <span class="avatar">@post.Username.Substring(0, 1).ToUpper()</span>
+                    </a>
+                    <div class="flex-grow-1">
+                        <a asp-controller="Users" asp-action="Profile" asp-route-id="@post.UserId"
+                           class="fw-700 text-dark text-decoration-none">@post.Username</a>
+                        <div class="text-muted" style="font-size:.78rem">
+                            <i class="bi bi-clock me-1"></i>@post.CreatedAt.ToString("dd/MM/yyyy HH:mm")
                         </div>
-                        @if (post.UserId == int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"))
-                        {
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-light border-0" data-bs-toggle="dropdown">
-                                    <i class="bi bi-three-dots"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="border-radius:.6rem">
-                                    <li>
-                                        <form asp-action="Delete" method="post"
-                                              onsubmit="return confirm('Xác nhận xóa bài viết này?')">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@post.PostId" />
-                                            <button class="dropdown-item text-danger small">
-                                                <i class="bi bi-trash me-2"></i>Xóa bài
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div>
-                        }
                     </div>
-
-                    @if (!string.IsNullOrWhiteSpace(post.Caption))
+                    @if (post.UserId == int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"))
                     {
-                        <div class="px-4 pb-2" style="font-size:.97rem">@post.Caption</div>
-                    }
-
-                    @if (!string.IsNullOrWhiteSpace(post.ImageUrl))
-                    {
-                        <!-- DEBUG post.PostId=@post.PostId ImageUrl="@post.ImageUrl" -->
-                        <a asp-action="Detail" asp-route-id="@post.PostId">
-                            <img src="@post.ImageUrl" class="post-image" alt="post image"
-                                 onerror="this.onerror=null; this.src='/img/no-image.png';" />
-                        </a>
-                    }
-                    else
-                    {
-                        <!-- DEBUG post.PostId=@post.PostId ImageUrl is EMPTY/NULL -->
-                    }
-
-                    <div class="card-body pt-2">
-                        <div class="d-flex align-items-center gap-2">
-
-                            <!-- ── Khu vực Reaction (thay cho nút tim đơn giản) ── -->
-                            <div class="reaction-wrap">
-                                @if (post.LikedByMe)
-                                {
-                                    <form asp-action="Unlike" method="post" class="d-inline">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light border-0" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="border-radius:.6rem">
+                                <li>
+                                    <form asp-action="Delete" method="post"
+                                          onsubmit="return confirm('Xác nhận xóa bài viết này?')">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="id" value="@post.PostId" />
-                                        <input type="hidden" name="ret" value="Index" />
-                                        <button type="submit" class="reaction-trigger has-reacted"
-                                                data-post-id="@post.PostId" data-liked="true">
-                                            <span class="reaction-current-icon">❤️</span>
-                                            <span class="reaction-current-label">Yêu thích</span>
-                                            <span>@post.LikeCount</span>
+                                        <button class="dropdown-item text-danger small">
+                                            <i class="bi bi-trash me-2"></i>Xóa bài
                                         </button>
                                     </form>
-                                }
-                                else
-                                {
-                                    <form asp-action="Like" method="post" class="d-inline">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@post.PostId" />
-                                        <input type="hidden" name="ret" value="Index" />
-                                        <button type="submit" class="reaction-trigger"
-                                                data-post-id="@post.PostId" data-liked="false">
-                                            <span class="reaction-current-icon">🤍</span>
-                                            <span class="reaction-current-label">Thích</span>
-                                            <span>@post.LikeCount</span>
-                                        </button>
-                                    </form>
-                                }
-
-                                <!-- Bảng chọn cảm xúc, hiện khi hover/long-press vào nút phía trên -->
-                                <div class="reaction-bar">
-                                    <button type="button" class="reaction-emoji" data-reaction="like" data-label="Thích">👍</button>
-                                    <button type="button" class="reaction-emoji" data-reaction="love" data-label="Yêu thích">❤️</button>
-                                    <button type="button" class="reaction-emoji" data-reaction="haha" data-label="Haha">😆</button>
-                                    <button type="button" class="reaction-emoji" data-reaction="wow" data-label="Wow">😮</button>
-                                    <button type="button" class="reaction-emoji" data-reaction="sad" data-label="Buồn">😢</button>
-                                    <button type="button" class="reaction-emoji" data-reaction="angry" data-label="Phẫn nộ">😡</button>
-                                </div>
-                            </div>
-
-                            <a asp-action="Detail" asp-route-id="@post.PostId" class="btn-like text-decoration-none">
-                                <i class="bi bi-chat"></i> @post.CommentCount
-                            </a>
+                                </li>
+                            </ul>
                         </div>
+                    }
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(post.Caption))
+                {
+                    <div class="px-4 pb-2" style="font-size:.97rem">@post.Caption</div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(post.ImageUrl))
+                {
+                    <!-- DEBUG post.PostId=@post.PostId ImageUrl="@post.ImageUrl" -->
+                    <a asp-action="Detail" asp-route-id="@post.PostId">
+                        <img src="@post.ImageUrl" class="post-image" alt="post image"
+                             onerror="this.onerror=null; this.src='/img/no-image.png';" />
+                    </a>
+                }
+                else
+                {
+                    <!-- DEBUG post.PostId=@post.PostId ImageUrl is EMPTY/NULL -->
+                }
+
+                <div class="card-body pt-2">
+                    <div class="d-flex align-items-center gap-2">
+
+                        <!-- ── Khu vực Reaction (thay cho nút tim đơn giản) ── -->
+                        <div class="reaction-wrap">
+                            @if (post.LikedByMe)
+                            {
+                                <form asp-action="Unlike" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@post.PostId" />
+                                    <input type="hidden" name="ret" value="Index" />
+                                    <button type="submit" class="reaction-trigger has-reacted"
+                                            data-post-id="@post.PostId" data-liked="true">
+                                        <span class="reaction-current-icon">❤️</span>
+                                        <span class="reaction-current-label">Yêu thích</span>
+                                        <span>@post.LikeCount</span>
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="Like" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@post.PostId" />
+                                    <input type="hidden" name="ret" value="Index" />
+                                    <button type="submit" class="reaction-trigger"
+                                            data-post-id="@post.PostId" data-liked="false">
+                                        <span class="reaction-current-icon">🤍</span>
+                                        <span class="reaction-current-label">Thích</span>
+                                        <span>@post.LikeCount</span>
+                                    </button>
+                                </form>
+                            }
+
+                            <!-- Bảng chọn cảm xúc, hiện khi hover/long-press vào nút phía trên -->
+                            <div class="reaction-bar">
+                                <button type="button" class="reaction-emoji" data-reaction="like" data-label="Thích">👍</button>
+                                <button type="button" class="reaction-emoji" data-reaction="love" data-label="Yêu thích">❤️</button>
+                                <button type="button" class="reaction-emoji" data-reaction="haha" data-label="Haha">😆</button>
+                                <button type="button" class="reaction-emoji" data-reaction="wow" data-label="Wow">😮</button>
+                                <button type="button" class="reaction-emoji" data-reaction="sad" data-label="Buồn">😢</button>
+                                <button type="button" class="reaction-emoji" data-reaction="angry" data-label="Phẫn nộ">😡</button>
+                            </div>
+                        </div>
+
+                        <a asp-action="Detail" asp-route-id="@post.PostId" class="btn-like text-decoration-none">
+                            <i class="bi bi-chat"></i> @post.CommentCount
+                        </a>
                     </div>
                 </div>
-            }
-
-            <div class="d-flex justify-content-center gap-2 pb-4">
-                @if (Model.HasPrev)
-                {
-                    <a asp-action="Index" asp-route-page="@(Model.Page - 1)"
-                       class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-chevron-left"></i> Trước
-                    </a>
-                }
-                <span class="btn btn-light btn-sm disabled">Trang @Model.Page</span>
-                @if (Model.HasNext)
-                {
-                    <a asp-action="Index" asp-route-page="@(Model.Page + 1)"
-                       class="btn btn-outline-secondary btn-sm">
-                        Sau <i class="bi bi-chevron-right"></i>
-                    </a>
-                }
             </div>
         }
 
-    </div>
+        <div class="d-flex justify-content-center gap-2 pb-4">
+            @if (Model.HasPrev)
+            {
+                <a asp-action="Index" asp-route-page="@(Model.Page - 1)"
+                   class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-chevron-left"></i> Trước
+                </a>
+            }
+            <span class="btn btn-light btn-sm disabled">Trang @Model.Page</span>
+            @if (Model.HasNext)
+            {
+                <a asp-action="Index" asp-route-page="@(Model.Page + 1)"
+                   class="btn btn-outline-secondary btn-sm">
+                    Sau <i class="bi bi-chevron-right"></i>
+                </a>
+            }
+        </div>
+    }
+
 </div>
 
 @section Scripts {
