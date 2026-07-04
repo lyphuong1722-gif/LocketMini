@@ -1,4 +1,4 @@
-﻿@model LocketMini.Web.Models.FeedViewModel
+﻿@model LocketSystem.Web.Models.FeedViewModel
 @using System.Security.Claims
 @{
     ViewData["Title"] = "Feed"; Layout = "_Layout";
@@ -22,7 +22,6 @@
         @foreach (var post in Model.Posts)
         {
             <div class="card card-post mb-4">
-                <!-- Header -->
                 <div class="card-body pb-2 d-flex align-items-center gap-3">
                     <a asp-controller="Users" asp-action="Profile" asp-route-id="@post.UserId" class="text-decoration-none">
                         <span class="avatar">@post.Username.Substring(0, 1).ToUpper()</span>
@@ -56,13 +55,11 @@
                     }
                 </div>
 
-                <!-- Caption -->
                 @if (!string.IsNullOrWhiteSpace(post.Caption))
                 {
                     <div class="px-4 pb-2" style="font-size:.97rem">@post.Caption</div>
                 }
 
-                <!-- Image -->
                 @if (!string.IsNullOrWhiteSpace(post.ImageUrl))
                 {
                     <a asp-action="Detail" asp-route-id="@post.PostId">
@@ -71,7 +68,6 @@
                     </a>
                 }
 
-                <!-- Actions -->
                 <div class="card-body pt-2">
                     <div class="d-flex align-items-center gap-2">
                         @if (post.LikedByMe)
@@ -105,7 +101,6 @@
             </div>
         }
 
-        <!-- Pagination -->
         <div class="d-flex justify-content-center gap-2 pb-4">
             @if (Model.HasPrev)
             {

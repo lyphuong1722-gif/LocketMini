@@ -1,5 +1,6 @@
 ﻿using LocketMini.Domain.Entities;
 using LocketMini.Domain.Interfaces;
+using LocketMini.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -46,14 +47,14 @@ public sealed class DbSeeder
         // ── Reload để có UserId từ IDENTITY ──────────────────────────────
         // Dùng .Value để so sánh string thay vì Value Object
         var adminUser = await _db.Users
-            .Include(u => u.Friends)
-            .FirstAsync(u => u.Username.Value == "admin", ct);
+    .Include(u => u.Friends)
+    .FirstAsync(u => u.Username == Username.Create("admin"), ct);
 
         var namUser = await _db.Users
-            .FirstAsync(u => u.Username.Value == "nam", ct);
+            .FirstAsync(u => u.Username == Username.Create("nam"), ct);
 
         var linhUser = await _db.Users
-            .FirstAsync(u => u.Username.Value == "linh", ct);
+            .FirstAsync(u => u.Username == Username.Create("linh"), ct);
 
         // ── Friends ───────────────────────────────────────────────────────
         adminUser.AddFriend(namUser);

@@ -14,6 +14,7 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         b.HasKey(u => u.UserId);
         b.Property(u => u.UserId)
+            .HasColumnName("user_id")
             .UseIdentityColumn();
 
         // ── Value Object: Username ─────────────────────────────────────────

@@ -13,10 +13,17 @@ public sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
         b.ToTable("Comments");
 
         b.HasKey(c => c.CommentId);
-        b.Property(c => c.CommentId).UseIdentityColumn();
+        b.Property(c => c.CommentId)
+            .HasColumnName("comment_id")
+            .UseIdentityColumn();
 
-        b.Property(c => c.UserId).IsRequired();
-        b.Property(c => c.PostId).IsRequired();
+        b.Property(c => c.UserId)
+            .HasColumnName("user_id")
+            .IsRequired();
+
+        b.Property(c => c.PostId)
+            .HasColumnName("post_id")
+            .IsRequired();
 
         b.Property(c => c.Content)
             .HasColumnName("content")
@@ -42,10 +49,17 @@ public sealed class LikeConfiguration : IEntityTypeConfiguration<Like>
         b.ToTable("Likes");
 
         b.HasKey(l => l.LikeId);
-        b.Property(l => l.LikeId).UseIdentityColumn();
+        b.Property(l => l.LikeId)
+            .HasColumnName("like_id")
+            .UseIdentityColumn();
 
-        b.Property(l => l.UserId).IsRequired();
-        b.Property(l => l.PostId).IsRequired();
+        b.Property(l => l.UserId)
+            .HasColumnName("user_id")
+            .IsRequired();
+
+        b.Property(l => l.PostId)
+            .HasColumnName("post_id")
+            .IsRequired();
 
         b.Property(l => l.CreatedAt)
             .HasColumnName("created_at")

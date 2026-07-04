@@ -1,4 +1,4 @@
-﻿@model LocketMini.Web.Models.SearchUsersViewModel
+﻿@model LocketSystem.Web.Models.SearchUsersViewModel
 @{
     ViewData["Title"] = "Tìm kiếm người dùng"; Layout = "_Layout";
 }
@@ -6,7 +6,6 @@
 <div class="container" style="max-width:680px">
     <h5 class="fw-700 mb-3"><i class="bi bi-search me-2"></i>Tìm kiếm người dùng</h5>
 
-    <!-- Search form -->
     <form asp-action="Search" method="get" class="mb-4">
         <div class="input-group">
             <input type="search" name="keyword" class="form-control"
@@ -18,7 +17,6 @@
         </div>
     </form>
 
-    <!-- Results -->
     @if (!string.IsNullOrWhiteSpace(Model.Keyword))
     {
         @if (!Model.Users.Any())
@@ -55,7 +53,6 @@
                 </ul>
             </div>
 
-            <!-- Pagination -->
             @if (Model.HasPrev || Model.HasNext)
             {
                 <div class="d-flex justify-content-center gap-2 mt-4">

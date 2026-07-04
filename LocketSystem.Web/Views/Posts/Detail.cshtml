@@ -1,4 +1,4 @@
-﻿@model LocketMini.Web.Models.PostDetailViewModel
+﻿@model LocketSystem.Web.Models.PostDetailViewModel
 @using System.Security.Claims
 @{
     ViewData["Title"] = "Chi tiết bài viết";
@@ -9,12 +9,10 @@
 
 <div class="container" style="max-width:700px">
 
-    <!-- Back -->
     <a asp-action="Index" class="btn btn-sm btn-light mb-3">
         <i class="bi bi-arrow-left me-1"></i>Quay lại Feed
     </a>
 
-    <!-- Post card -->
     <div class="card card-post mb-3">
         <div class="card-body pb-2 d-flex align-items-center gap-3">
             <a asp-controller="Users" asp-action="Profile" asp-route-id="@post.UserId" class="text-decoration-none">
@@ -60,7 +58,6 @@
                  onerror="this.src='/img/no-image.png'" />
         }
 
-        <!-- Like / Comment counts -->
         <div class="card-body pt-2 pb-1">
             <div class="d-flex align-items-center gap-3">
                 @if (post.LikedByMe)
@@ -92,7 +89,6 @@
         </div>
     </div>
 
-    <!-- Comments section -->
     <div class="card border-0 shadow-sm mb-4" style="border-radius:1rem">
         <div class="card-body">
             <h6 class="fw-700 mb-3">Bình luận (@Model.Comments.Count)</h6>
@@ -106,9 +102,7 @@
                     <div class="flex-grow-1">
                         <div class="bg-light rounded-3 px-3 py-2" style="font-size:.92rem">
                             <span class="fw-700 me-1">@c.Username</span>
-                            <!-- View mode -->
                             <span id="comment-text-@c.CommentId">@c.Content</span>
-                            <!-- Edit mode (hidden) -->
                             <form asp-action="EditComment" method="post" id="edit-form-@c.CommentId" class="d-none mt-1">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="commentId" value="@c.CommentId" />
@@ -152,7 +146,6 @@
                 <p class="text-muted small text-center py-2">Chưa có bình luận. Hãy là người đầu tiên! 💬</p>
             }
 
-            <!-- Add comment -->
             <form asp-action="AddComment" method="post" class="mt-3">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="postId" value="@post.PostId" />

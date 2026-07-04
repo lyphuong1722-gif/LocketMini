@@ -11,9 +11,13 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
         b.ToTable("Posts");
 
         b.HasKey(p => p.PostId);
-        b.Property(p => p.PostId).UseIdentityColumn();
+        b.Property(p => p.PostId)
+            .HasColumnName("post_id")
+            .UseIdentityColumn();
 
-        b.Property(p => p.UserId).IsRequired();
+        b.Property(p => p.UserId)
+            .HasColumnName("user_id")
+            .IsRequired();
 
         b.Property(p => p.Caption)
             .HasColumnName("caption")

@@ -11,9 +11,13 @@ public sealed class ProfileConfiguration : IEntityTypeConfiguration<Profile>
         b.ToTable("Profiles");
 
         b.HasKey(p => p.ProfileId);
-        b.Property(p => p.ProfileId).UseIdentityColumn();
+        b.Property(p => p.ProfileId)
+            .HasColumnName("profile_id")
+            .UseIdentityColumn();
 
-        b.Property(p => p.UserId).IsRequired();
+        b.Property(p => p.UserId)
+            .HasColumnName("user_id")
+            .IsRequired();
 
         b.Property(p => p.FullName)
             .HasColumnName("full_name")

@@ -1,4 +1,4 @@
-﻿@model LocketMini.Web.Models.CreatePostViewModel
+﻿@model LocketSystem.Web.Models.CreatePostViewModel
 @{
     ViewData["Title"] = "Đăng bài mới"; Layout = "_Layout";
 }
@@ -30,7 +30,6 @@
                         <span asp-validation-for="ImageUrl" class="text-danger small"></span>
                     </div>
 
-                    <!-- Preview -->
                     <div id="img-preview" class="mb-3 d-none">
                         <img id="preview-img" src="" alt="preview"
                              class="img-fluid rounded-3 w-100"

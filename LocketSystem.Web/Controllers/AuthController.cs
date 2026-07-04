@@ -1,6 +1,4 @@
 ﻿using LocketMini.Application.Features.Auth.Commands;
-using LocketMini.Web.Controllers;
-using LocketMini.Web.Models;
 using LocketSystem.Web.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;

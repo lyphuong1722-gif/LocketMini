@@ -1,8 +1,6 @@
 ﻿using LocketMini.Application.Features.Friends.Commands;
 using LocketMini.Application.Features.Posts.Queries;
 using LocketMini.Application.Features.Users.Queries;
-using LocketMini.Web.Controllers;
-using LocketMini.Web.Models;
 using LocketSystem.Web.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
