@@ -1,5 +1,6 @@
 ﻿using LocketMini.Domain.Entities;
 using LocketMini.Domain.Interfaces.Repositories;
+using LocketMini.Infrastructure.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace LocketMini.Infrastructure.Persistence.Repositories;
@@ -26,17 +27,25 @@ public sealed class UserRepository : BaseRepository<User>, IUserRepository
             .Include(u => u.Friends)
             .FirstOrDefaultAsync(u => u.UserId == userId, ct);
 
+    /// <summary>
+    /// Tìm kiếm theo Username hoặc FullName, không phân biệt hoa/thường và có dấu/không dấu.
+    /// So khớp được thực hiện ở tầng ứng dụng vì SQL Server LIKE mặc định
+    /// không tự động bỏ dấu tiếng Việt.
+    /// </summary>
     public async Task<IReadOnlyList<User>> SearchAsync(string keyword, CancellationToken ct = default)
     {
-        var lower = keyword.ToLower();
+        var normalizedKeyword = TextNormalizer.NormalizeForSearch(keyword);
 
-        return await Set
+        var allUsers = await Set
             .Include(u => u.Profile)
-            .Where(u =>
-                u.Username.Value.Contains(lower) ||
-                (u.Profile != null && u.Profile.FullName != null &&
-                 u.Profile.FullName.ToLower().Contains(lower)))
-            .OrderBy(u => u.Username.Value)
             .ToListAsync(ct);
+
+        return allUsers
+            .Where(u =>
+                TextNormalizer.NormalizeForSearch(u.Username.Value).Contains(normalizedKeyword) ||
+                (u.Profile?.FullName is not null &&
+                 TextNormalizer.NormalizeForSearch(u.Profile.FullName).Contains(normalizedKeyword)))
+            .OrderBy(u => u.Username.Value)
+            .ToList();
     }
 }

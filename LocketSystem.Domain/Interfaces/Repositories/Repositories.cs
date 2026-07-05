@@ -22,7 +22,7 @@ public interface IUserRepository : IRepository<User>
     /// <summary>Lấy user kèm Profile.</summary>
     Task<User?> GetWithProfileAsync(int userId, CancellationToken ct = default);
 
-    /// <summary>Lấy user kèm danh sách bạn bè (Friends).</summary>
+    /// <summary>Lấy user kèm danh sách bạn bè / lời mời (Friends) do chính user này sở hữu (UserId == userId).</summary>
     Task<User?> GetWithFriendsAsync(int userId, CancellationToken ct = default);
 
     /// <summary>Tìm kiếm user theo username hoặc FullName.</summary>
@@ -67,8 +67,20 @@ public interface ILikeRepository : IRepository<Like>
 
 public interface IFriendRepository
 {
+    /// <summary>Hai người có đang là bạn bè (Accepted) hay không.</summary>
     Task<bool> AreFriendsAsync(int userId, int friendId, CancellationToken ct = default);
+
+    /// <summary>Danh sách UserId bạn bè đã Accepted của userId.</summary>
     Task<IReadOnlyList<int>> GetFriendIdsAsync(int userId, CancellationToken ct = default);
+
+    /// <summary>Lấy đúng 1 dòng directed (UserId=userId, FriendId=friendId) — dùng để kiểm tra trạng thái quan hệ.</summary>
+    Task<Friend?> GetDirectedAsync(int userId, int friendId, CancellationToken ct = default);
+
+    /// <summary>Các lời mời ĐANG CHỜ mà userId là người NHẬN (người khác gửi cho userId).</summary>
+    Task<IReadOnlyList<Friend>> GetIncomingRequestsAsync(int userId, CancellationToken ct = default);
+
+    /// <summary>Các lời mời ĐANG CHỜ mà userId là người GỬI (userId gửi cho người khác).</summary>
+    Task<IReadOnlyList<Friend>> GetOutgoingRequestsAsync(int userId, CancellationToken ct = default);
 }
 
 // ── Unit of Work ──────────────────────────────────────────────────────────────

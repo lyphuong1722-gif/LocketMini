@@ -60,10 +60,38 @@ public sealed record LikeDto(
 
 // ── Friend ────────────────────────────────────────────────────────────────────
 
+/// <summary>Đại diện cho một người bạn đã kết bạn (Accepted).</summary>
 public sealed record FriendDto(
     int UserId,
     string Username,
     string? FullName);
+
+/// <summary>
+/// Đại diện cho MỘT PHÍA của lời mời kết bạn đang chờ (Pending):
+/// - Với lời mời ĐẾN: đây là thông tin của người GỬI.
+/// - Với lời mời ĐI: đây là thông tin của người NHẬN.
+/// </summary>
+public sealed record FriendRequestDto(
+    int UserId,
+    string Username,
+    string? FullName,
+    DateTime SentAt);
+
+/// <summary>Trạng thái quan hệ giữa "tôi" và một user khác.</summary>
+public enum FriendshipRelation
+{
+    /// <summary>Chưa có quan hệ gì.</summary>
+    None,
+
+    /// <summary>Tôi đã gửi lời mời kết bạn, đang chờ họ phản hồi.</summary>
+    PendingSentByMe,
+
+    /// <summary>Họ đã gửi lời mời kết bạn cho tôi, đang chờ tôi phản hồi.</summary>
+    PendingReceivedByMe,
+
+    /// <summary>Đã là bạn bè.</summary>
+    Friends
+}
 
 // ── Pagination ────────────────────────────────────────────────────────────────
 

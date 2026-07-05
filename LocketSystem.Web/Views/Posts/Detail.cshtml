@@ -59,29 +59,50 @@
         }
 
         <div class="card-body pt-2 pb-1">
-            <div class="d-flex align-items-center gap-3">
-                @if (post.LikedByMe)
-                {
-                    <form asp-action="Unlike" method="post" class="d-inline">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@post.PostId" />
-                        <input type="hidden" name="ret" value="Detail" />
-                        <button class="btn-like liked fw-600">
-                            <i class="bi bi-heart-fill"></i> @post.LikeCount lượt thích
-                        </button>
-                    </form>
-                }
-                else
-                {
-                    <form asp-action="Like" method="post" class="d-inline">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@post.PostId" />
-                        <input type="hidden" name="ret" value="Detail" />
-                        <button class="btn-like fw-600">
-                            <i class="bi bi-heart"></i> @post.LikeCount lượt thích
-                        </button>
-                    </form>
-                }
+            <div class="d-flex align-items-center gap-2">
+
+                <!-- ── Khu vực Reaction (giống trang Feed) ── -->
+                <div class="reaction-wrap">
+                    @if (post.LikedByMe)
+                    {
+                        <form asp-action="Unlike" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@post.PostId" />
+                            <input type="hidden" name="ret" value="Detail" />
+                            <button type="submit" class="reaction-trigger has-reacted"
+                                    data-post-id="@post.PostId" data-liked="true">
+                                <span class="reaction-current-icon">❤️</span>
+                                <span class="reaction-current-label">Yêu thích</span>
+                                <span>@post.LikeCount</span>
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Like" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@post.PostId" />
+                            <input type="hidden" name="ret" value="Detail" />
+                            <button type="submit" class="reaction-trigger"
+                                    data-post-id="@post.PostId" data-liked="false">
+                                <span class="reaction-current-icon">🤍</span>
+                                <span class="reaction-current-label">Thích</span>
+                                <span>@post.LikeCount</span>
+                            </button>
+                        </form>
+                    }
+
+                    <!-- Bảng chọn cảm xúc, hiện khi hover/long-press vào nút phía trên -->
+                    <div class="reaction-bar">
+                        <button type="button" class="reaction-emoji" data-reaction="like" data-label="Thích">👍</button>
+                        <button type="button" class="reaction-emoji" data-reaction="love" data-label="Yêu thích">❤️</button>
+                        <button type="button" class="reaction-emoji" data-reaction="haha" data-label="Haha">😆</button>
+                        <button type="button" class="reaction-emoji" data-reaction="wow" data-label="Wow">😮</button>
+                        <button type="button" class="reaction-emoji" data-reaction="sad" data-label="Buồn">😢</button>
+                        <button type="button" class="reaction-emoji" data-reaction="angry" data-label="Phẫn nộ">😡</button>
+                    </div>
+                </div>
+
                 <span class="text-muted small">
                     <i class="bi bi-chat me-1"></i>@post.CommentCount bình luận
                 </span>
@@ -169,15 +190,16 @@
 </div>
 
 @section Scripts {
+    <script src="~/js/reactions.js" asp-append-version="true"></script>
     <script>
         function startEdit(id) {
-            document.getElementById('comment-text-' + id).classList.add('d-none');
-            document.getElementById('edit-form-' + id).classList.remove('d-none');
-            document.getElementById('edit-input-' + id).focus();
+        document.getElementById('comment-text-' + id).classList.add('d-none');
+        document.getElementById('edit-form-' + id).classList.remove('d-none');
+        document.getElementById('edit-input-' + id).focus();
         }
         function cancelEdit(id) {
-            document.getElementById('comment-text-' + id).classList.remove('d-none');
-            document.getElementById('edit-form-' + id).classList.add('d-none');
+        document.getElementById('comment-text-' + id).classList.remove('d-none');
+        document.getElementById('edit-form-' + id).classList.add('d-none');
         }
     </script>
 }

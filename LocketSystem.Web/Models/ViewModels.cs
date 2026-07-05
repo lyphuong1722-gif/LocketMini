@@ -104,7 +104,10 @@ public class UserProfileViewModel
 {
     public UserDto User { get; set; } = null!;
     public IReadOnlyList<PostDto> Posts { get; set; } = [];
-    public bool IsFriend { get; set; }
+
+    /// <summary>Trạng thái quan hệ giữa người đang đăng nhập và chủ trang cá nhân này.</summary>
+    public FriendshipRelation Relation { get; set; } = FriendshipRelation.None;
+
     public bool IsMyself { get; set; }
     public int FriendCount { get; set; }
 }
@@ -122,7 +125,14 @@ public class SearchUsersViewModel
 
 public class FriendListViewModel
 {
+    /// <summary>Danh sách bạn bè đã kết bạn (Accepted).</summary>
     public IReadOnlyList<FriendDto> Friends { get; set; } = [];
+
+    /// <summary>Lời mời kết bạn tôi ĐÃ NHẬN, đang chờ tôi phản hồi.</summary>
+    public IReadOnlyList<FriendRequestDto> IncomingRequests { get; set; } = [];
+
+    /// <summary>Lời mời kết bạn tôi ĐÃ GỬI, đang chờ đối phương phản hồi.</summary>
+    public IReadOnlyList<FriendRequestDto> OutgoingRequests { get; set; } = [];
 }
 
 public class MutualFriendsViewModel

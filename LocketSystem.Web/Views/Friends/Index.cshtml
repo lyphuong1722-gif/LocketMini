@@ -4,6 +4,7 @@
 }
 
 <div class="container" style="max-width:680px">
+
     <div class="d-flex align-items-center justify-content-between mb-4">
         <h5 class="fw-700 mb-0">
             <i class="bi bi-people me-2"></i>Bạn bè (@Model.Friends.Count)
@@ -12,6 +13,95 @@
             <i class="bi bi-person-plus me-1"></i>Tìm thêm bạn
         </a>
     </div>
+
+    <!-- ── Lời mời kết bạn ĐÃ NHẬN ─────────────────────────────────────── -->
+    @if (Model.IncomingRequests.Any())
+    {
+        <h6 class="fw-700 mb-3">
+            <i class="bi bi-envelope-heart me-2"></i>Lời mời đã nhận (@Model.IncomingRequests.Count)
+        </h6>
+        <div class="card border-0 shadow-sm mb-4" style="border-radius:1rem">
+            <ul class="list-group list-group-flush" style="border-radius:1rem">
+                @foreach (var r in Model.IncomingRequests)
+                {
+                    <li class="list-group-item px-4 py-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <a asp-controller="Users" asp-action="Profile" asp-route-id="@r.UserId"
+                               class="text-decoration-none">
+                                <span class="avatar">@r.Username.Substring(0, 1).ToUpper()</span>
+                            </a>
+                            <div class="flex-grow-1">
+                                <a asp-controller="Users" asp-action="Profile" asp-route-id="@r.UserId"
+                                   class="fw-700 text-dark text-decoration-none">@r.Username</a>
+                                @if (!string.IsNullOrWhiteSpace(r.FullName))
+                                {
+                                    <div class="text-muted small">@r.FullName</div>
+                                }
+                            </div>
+                            <div class="d-flex gap-2">
+                                <form asp-controller="Friends" asp-action="Accept" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="requesterId" value="@r.UserId" />
+                                    <button class="btn btn-sm btn-orange" type="submit" title="Chấp nhận">
+                                        <i class="bi bi-check-lg"></i> Chấp nhận
+                                    </button>
+                                </form>
+                                <form asp-controller="Friends" asp-action="Decline" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="requesterId" value="@r.UserId" />
+                                    <button class="btn btn-sm btn-outline-danger" type="submit" title="Từ chối">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+
+    <!-- ── Lời mời kết bạn ĐÃ GỬI ──────────────────────────────────────── -->
+    @if (Model.OutgoingRequests.Any())
+    {
+        <h6 class="fw-700 mb-3">
+            <i class="bi bi-send me-2"></i>Lời mời đã gửi (@Model.OutgoingRequests.Count)
+        </h6>
+        <div class="card border-0 shadow-sm mb-4" style="border-radius:1rem">
+            <ul class="list-group list-group-flush" style="border-radius:1rem">
+                @foreach (var r in Model.OutgoingRequests)
+                {
+                    <li class="list-group-item px-4 py-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <a asp-controller="Users" asp-action="Profile" asp-route-id="@r.UserId"
+                               class="text-decoration-none">
+                                <span class="avatar">@r.Username.Substring(0, 1).ToUpper()</span>
+                            </a>
+                            <div class="flex-grow-1">
+                                <a asp-controller="Users" asp-action="Profile" asp-route-id="@r.UserId"
+                                   class="fw-700 text-dark text-decoration-none">@r.Username</a>
+                                @if (!string.IsNullOrWhiteSpace(r.FullName))
+                                {
+                                    <div class="text-muted small">@r.FullName</div>
+                                }
+                                <div class="text-muted small">Đang chờ phản hồi...</div>
+                            </div>
+                            <form asp-controller="Friends" asp-action="Cancel" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="targetUserId" value="@r.UserId" />
+                                <button class="btn btn-sm btn-outline-secondary" type="submit">
+                                    <i class="bi bi-x-circle me-1"></i>Hủy lời mời
+                                </button>
+                            </form>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+
+    <!-- ── Danh sách bạn bè đã kết bạn ──────────────────────────────────── -->
+    <h6 class="fw-700 mb-3"><i class="bi bi-people-fill me-2"></i>Danh sách bạn bè</h6>
 
     @if (!Model.Friends.Any())
     {

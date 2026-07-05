@@ -97,21 +97,74 @@ public sealed class CommentAddedEventHandler
     }
 }
 
-// ── FriendAdded ───────────────────────────────────────────────────────────────
+// ── FriendRequestSent ─────────────────────────────────────────────────────────
 
-public sealed class FriendAddedEventHandler
-    : INotificationHandler<DomainEventNotification<FriendAddedEvent>>
+public sealed class FriendRequestSentEventHandler
+    : INotificationHandler<DomainEventNotification<FriendRequestSentEvent>>
 {
-    private readonly ILogger<FriendAddedEventHandler> _logger;
-    public FriendAddedEventHandler(ILogger<FriendAddedEventHandler> logger) => _logger = logger;
+    private readonly ILogger<FriendRequestSentEventHandler> _logger;
+    public FriendRequestSentEventHandler(ILogger<FriendRequestSentEventHandler> logger) => _logger = logger;
 
-    public Task Handle(DomainEventNotification<FriendAddedEvent> n, CancellationToken ct)
+    public Task Handle(DomainEventNotification<FriendRequestSentEvent> n, CancellationToken ct)
     {
         _logger.LogInformation(
-            "[Event] UserId={UserId} kết bạn với FriendId={FriendId}",
-            n.DomainEvent.UserId, n.DomainEvent.FriendId);
+            "[Event] UserId={RequesterId} gửi lời mời kết bạn tới UserId={TargetId}",
+            n.DomainEvent.RequesterId, n.DomainEvent.TargetId);
 
-        // TODO: notify người được kết bạn
+        // TODO: notify người nhận lời mời
+        return Task.CompletedTask;
+    }
+}
+
+// ── FriendRequestAccepted ─────────────────────────────────────────────────────
+
+public sealed class FriendRequestAcceptedEventHandler
+    : INotificationHandler<DomainEventNotification<FriendRequestAcceptedEvent>>
+{
+    private readonly ILogger<FriendRequestAcceptedEventHandler> _logger;
+    public FriendRequestAcceptedEventHandler(ILogger<FriendRequestAcceptedEventHandler> logger) => _logger = logger;
+
+    public Task Handle(DomainEventNotification<FriendRequestAcceptedEvent> n, CancellationToken ct)
+    {
+        _logger.LogInformation(
+            "[Event] UserId={AccepterId} đã chấp nhận lời mời kết bạn từ UserId={RequesterId}",
+            n.DomainEvent.AccepterId, n.DomainEvent.RequesterId);
+
+        // TODO: notify người gửi lời mời ban đầu
+        return Task.CompletedTask;
+    }
+}
+
+// ── FriendRequestDeclined ─────────────────────────────────────────────────────
+
+public sealed class FriendRequestDeclinedEventHandler
+    : INotificationHandler<DomainEventNotification<FriendRequestDeclinedEvent>>
+{
+    private readonly ILogger<FriendRequestDeclinedEventHandler> _logger;
+    public FriendRequestDeclinedEventHandler(ILogger<FriendRequestDeclinedEventHandler> logger) => _logger = logger;
+
+    public Task Handle(DomainEventNotification<FriendRequestDeclinedEvent> n, CancellationToken ct)
+    {
+        _logger.LogInformation(
+            "[Event] Lời mời kết bạn từ UserId={RequesterId} tới UserId={TargetId} đã bị từ chối",
+            n.DomainEvent.RequesterId, n.DomainEvent.TargetId);
+        return Task.CompletedTask;
+    }
+}
+
+// ── FriendRequestCancelled ────────────────────────────────────────────────────
+
+public sealed class FriendRequestCancelledEventHandler
+    : INotificationHandler<DomainEventNotification<FriendRequestCancelledEvent>>
+{
+    private readonly ILogger<FriendRequestCancelledEventHandler> _logger;
+    public FriendRequestCancelledEventHandler(ILogger<FriendRequestCancelledEventHandler> logger) => _logger = logger;
+
+    public Task Handle(DomainEventNotification<FriendRequestCancelledEvent> n, CancellationToken ct)
+    {
+        _logger.LogInformation(
+            "[Event] UserId={RequesterId} đã hủy lời mời kết bạn gửi tới UserId={TargetId}",
+            n.DomainEvent.RequesterId, n.DomainEvent.TargetId);
         return Task.CompletedTask;
     }
 }

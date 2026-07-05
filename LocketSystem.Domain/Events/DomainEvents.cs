@@ -38,13 +38,33 @@ public sealed record CommentAddedEvent(int PostId, int CommenterId) : IDomainEve
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
 
-// ── Friend events ─────────────────────────────────────────────────────────────
+// ── Friend request workflow events ────────────────────────────────────────────
 
-public sealed record FriendAddedEvent(int UserId, int FriendId) : IDomainEvent
+/// <summary>RequesterId đã gửi lời mời kết bạn cho TargetId.</summary>
+public sealed record FriendRequestSentEvent(int RequesterId, int TargetId) : IDomainEvent
 {
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
 
+/// <summary>AccepterId đã chấp nhận lời mời kết bạn từ RequesterId.</summary>
+public sealed record FriendRequestAcceptedEvent(int RequesterId, int AccepterId) : IDomainEvent
+{
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
+
+/// <summary>TargetId đã từ chối lời mời kết bạn từ RequesterId.</summary>
+public sealed record FriendRequestDeclinedEvent(int RequesterId, int TargetId) : IDomainEvent
+{
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
+
+/// <summary>RequesterId đã hủy lời mời kết bạn (chưa được phản hồi) gửi tới TargetId.</summary>
+public sealed record FriendRequestCancelledEvent(int RequesterId, int TargetId) : IDomainEvent
+{
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
+
+/// <summary>UserId đã hủy kết bạn với FriendId (đã từng là bạn bè).</summary>
 public sealed record FriendRemovedEvent(int UserId, int FriendId) : IDomainEvent
 {
     public DateTime OccurredOn { get; } = DateTime.UtcNow;

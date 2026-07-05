@@ -1,38 +1,52 @@
 ﻿using LocketMini.Application.Common;
 using LocketMini.Application.Common.Exceptions;
+using LocketMini.Domain.Entities;
 using LocketMini.Domain.Exceptions;
 using LocketMini.Domain.Interfaces.Repositories;
 using MediatR;
 
 namespace LocketMini.Application.Features.Friends.Commands;
 
-// ── AddFriend ─────────────────────────────────────────────────────────────────
+// ── SendFriendRequest ─────────────────────────────────────────────────────────
 
-public sealed record AddFriendCommand(
+public sealed record SendFriendRequestCommand(
     int RequesterId,
     int TargetUserId) : IRequest<Result>;
 
-public sealed class AddFriendHandler : IRequestHandler<AddFriendCommand, Result>
+public sealed class SendFriendRequestHandler : IRequestHandler<SendFriendRequestCommand, Result>
 {
     private readonly IUnitOfWork _uow;
 
-    public AddFriendHandler(IUnitOfWork uow) => _uow = uow;
+    public SendFriendRequestHandler(IUnitOfWork uow) => _uow = uow;
 
-    public async Task<Result> Handle(AddFriendCommand request, CancellationToken ct)
+    public async Task<Result> Handle(SendFriendRequestCommand request, CancellationToken ct)
     {
         if (request.RequesterId == request.TargetUserId)
-            return Result.Failure("Không thể kết bạn với chính mình.");
+            return Result.Failure("Không thể gửi lời mời kết bạn cho chính mình.");
 
-        // Load requester kèm friends để domain check trùng
         var requester = await _uow.Users.GetWithFriendsAsync(request.RequesterId, ct)
             ?? throw new NotFoundException("User", request.RequesterId);
 
-        var targetUser = await _uow.Users.GetByIdAsync(request.TargetUserId, ct)
+        var target = await _uow.Users.GetWithFriendsAsync(request.TargetUserId, ct)
             ?? throw new NotFoundException("User", request.TargetUserId);
 
         try
         {
-            requester.AddFriend(targetUser);
+            // Nếu đối phương đã gửi lời mời cho mình trước đó -> tự động chấp nhận
+            // thay vì tạo thêm một lời mời song song.
+            var reverseRequestExists = target.Friends
+                .Any(f => f.FriendId == request.RequesterId && f.Status == FriendStatus.Pending);
+
+            if (reverseRequestExists)
+            {
+                target.MarkRequestAccepted(request.RequesterId);
+                requester.AddAcceptedFriend(request.TargetUserId);
+            }
+            else
+            {
+                requester.SendFriendRequest(request.TargetUserId);
+            }
+
             await _uow.SaveChangesAsync(ct);
             return Result.Success();
         }
@@ -43,7 +57,102 @@ public sealed class AddFriendHandler : IRequestHandler<AddFriendCommand, Result>
     }
 }
 
-// ── RemoveFriend ──────────────────────────────────────────────────────────────
+// ── AcceptFriendRequest ───────────────────────────────────────────────────────
+
+public sealed record AcceptFriendRequestCommand(
+    int RequesterId,
+    int AccepterId) : IRequest<Result>;
+
+public sealed class AcceptFriendRequestHandler : IRequestHandler<AcceptFriendRequestCommand, Result>
+{
+    private readonly IUnitOfWork _uow;
+
+    public AcceptFriendRequestHandler(IUnitOfWork uow) => _uow = uow;
+
+    public async Task<Result> Handle(AcceptFriendRequestCommand request, CancellationToken ct)
+    {
+        var requester = await _uow.Users.GetWithFriendsAsync(request.RequesterId, ct)
+            ?? throw new NotFoundException("User", request.RequesterId);
+
+        var accepter = await _uow.Users.GetWithFriendsAsync(request.AccepterId, ct)
+            ?? throw new NotFoundException("User", request.AccepterId);
+
+        try
+        {
+            requester.MarkRequestAccepted(request.AccepterId);
+            accepter.AddAcceptedFriend(request.RequesterId);
+
+            await _uow.SaveChangesAsync(ct);
+            return Result.Success();
+        }
+        catch (DomainException ex)
+        {
+            return Result.Failure(ex.Message);
+        }
+    }
+}
+
+// ── DeclineFriendRequest (người nhận từ chối lời mời) ────────────────────────
+
+public sealed record DeclineFriendRequestCommand(
+    int RequesterId,
+    int TargetUserId) : IRequest<Result>;
+
+public sealed class DeclineFriendRequestHandler : IRequestHandler<DeclineFriendRequestCommand, Result>
+{
+    private readonly IUnitOfWork _uow;
+
+    public DeclineFriendRequestHandler(IUnitOfWork uow) => _uow = uow;
+
+    public async Task<Result> Handle(DeclineFriendRequestCommand request, CancellationToken ct)
+    {
+        var requester = await _uow.Users.GetWithFriendsAsync(request.RequesterId, ct)
+            ?? throw new NotFoundException("User", request.RequesterId);
+
+        try
+        {
+            requester.DeclineOutgoingRequest(request.TargetUserId);
+            await _uow.SaveChangesAsync(ct);
+            return Result.Success();
+        }
+        catch (DomainException ex)
+        {
+            return Result.Failure(ex.Message);
+        }
+    }
+}
+
+// ── CancelFriendRequest (người gửi tự hủy lời mời đã gửi) ────────────────────
+
+public sealed record CancelFriendRequestCommand(
+    int RequesterId,
+    int TargetUserId) : IRequest<Result>;
+
+public sealed class CancelFriendRequestHandler : IRequestHandler<CancelFriendRequestCommand, Result>
+{
+    private readonly IUnitOfWork _uow;
+
+    public CancelFriendRequestHandler(IUnitOfWork uow) => _uow = uow;
+
+    public async Task<Result> Handle(CancelFriendRequestCommand request, CancellationToken ct)
+    {
+        var requester = await _uow.Users.GetWithFriendsAsync(request.RequesterId, ct)
+            ?? throw new NotFoundException("User", request.RequesterId);
+
+        try
+        {
+            requester.CancelSentRequest(request.TargetUserId);
+            await _uow.SaveChangesAsync(ct);
+            return Result.Success();
+        }
+        catch (DomainException ex)
+        {
+            return Result.Failure(ex.Message);
+        }
+    }
+}
+
+// ── RemoveFriend (hủy kết bạn đã Accepted) ───────────────────────────────────
 
 public sealed record RemoveFriendCommand(
     int RequesterId,
@@ -60,14 +169,15 @@ public sealed class RemoveFriendHandler : IRequestHandler<RemoveFriendCommand, R
         var requester = await _uow.Users.GetWithFriendsAsync(request.RequesterId, ct)
             ?? throw new NotFoundException("User", request.RequesterId);
 
-        // Kiểm tra target tồn tại
-        var target = await _uow.Users.GetByIdAsync(request.TargetUserId, ct)
+        var target = await _uow.Users.GetWithFriendsAsync(request.TargetUserId, ct)
             ?? throw new NotFoundException("User", request.TargetUserId);
 
-        // Dùng trực tiếp domain: nếu không tìm thấy friend sẽ throw DomainException
         try
         {
+            // Xóa cả hai chiều của mối quan hệ Accepted
             requester.RemoveFriend(request.TargetUserId);
+            target.RemoveFriend(request.RequesterId);
+
             await _uow.SaveChangesAsync(ct);
             return Result.Success();
         }
@@ -75,24 +185,5 @@ public sealed class RemoveFriendHandler : IRequestHandler<RemoveFriendCommand, R
         {
             return Result.Failure(ex.Message);
         }
-    }
-}
-
-// ── CheckFriendship ───────────────────────────────────────────────────────────
-
-public sealed record CheckFriendshipCommand(
-    int UserId,
-    int OtherUserId) : IRequest<Result<bool>>;
-
-public sealed class CheckFriendshipHandler : IRequestHandler<CheckFriendshipCommand, Result<bool>>
-{
-    private readonly IUnitOfWork _uow;
-
-    public CheckFriendshipHandler(IUnitOfWork uow) => _uow = uow;
-
-    public async Task<Result<bool>> Handle(CheckFriendshipCommand request, CancellationToken ct)
-    {
-        var areFriends = await _uow.Friends.AreFriendsAsync(request.UserId, request.OtherUserId, ct);
-        return Result.Success(areFriends);
     }
 }

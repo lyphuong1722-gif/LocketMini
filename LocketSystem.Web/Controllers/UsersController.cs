@@ -1,5 +1,4 @@
-﻿using LocketMini.Application.Features.Friends.Commands;
-using LocketMini.Application.Features.Friends.Queries;
+﻿using LocketMini.Application.Features.Friends.Queries;
 using LocketMini.Application.Features.Posts.Queries;
 using LocketMini.Application.Features.Users.Queries;
 using LocketSystem.Web.Models;
@@ -19,16 +18,18 @@ public class UsersController : BaseController
         if (userResult.IsFailure) return NotFound();
 
         var postsResult = await Mediator.Send(new GetUserPostsQuery(CurrentUserId, id));
-        // CheckFriendshipCommand trả Result<bool>
-        var friendResult = await Mediator.Send(new CheckFriendshipCommand(CurrentUserId, id));
-        // Danh sách bạn bè của user đang xem để đếm số lượng
+
+        // Trạng thái quan hệ đầy đủ: None / PendingSentByMe / PendingReceivedByMe / Friends
+        var relationResult = await Mediator.Send(new GetFriendshipStatusQuery(CurrentUserId, id));
+
+        // Số lượng bạn bè của user đang xem
         var friendListResult = await Mediator.Send(new GetFriendListQuery(id));
 
         return View(new UserProfileViewModel
         {
             User = userResult.Value,
             Posts = postsResult.IsSuccess ? postsResult.Value : [],
-            IsFriend = friendResult.IsSuccess && friendResult.Value,
+            Relation = relationResult.IsSuccess ? relationResult.Value : LocketMini.Application.DTOs.FriendshipRelation.None,
             IsMyself = id == CurrentUserId,
             FriendCount = friendListResult.IsSuccess ? friendListResult.Value.Count : 0,
         });

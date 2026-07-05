@@ -86,6 +86,26 @@ public sealed class FriendConfiguration : IEntityTypeConfiguration<Friend>
         b.Property(f => f.UserId).HasColumnName("user_id");
         b.Property(f => f.FriendId).HasColumnName("friend_id");
 
+        // Trạng thái: 0 = Pending (đang chờ), 1 = Accepted (đã là bạn bè)
+        b.Property(f => f.Status)
+            .HasColumnName("status")
+            .HasConversion<int>()
+            .HasDefaultValue(FriendStatus.Pending)
+            .IsRequired();
+
+        b.Property(f => f.CreatedAt)
+            .HasColumnName("created_at")
+            .HasColumnType("datetime2")
+            .HasDefaultValueSql("GETDATE()")
+            .ValueGeneratedOnAdd();
+
+        b.Property(f => f.RespondedAt)
+            .HasColumnName("responded_at")
+            .HasColumnType("datetime2");
+
+        // Index hỗ trợ truy vấn "lời mời đến" (theo FriendId + Status)
+        b.HasIndex(f => new { f.FriendId, f.Status });
+
         // FK tới FriendUser (navigation riêng để tránh xung đột cascade)
         b.HasOne(f => f.FriendUser)
             .WithMany()

@@ -27,30 +27,65 @@
                 @if (!Model.IsMyself)
                 {
                     <div class="d-flex flex-column gap-2">
-                        @if (Model.IsFriend)
+                        @switch (Model.Relation)
                         {
-                            <form asp-controller="Friends" asp-action="Remove" method="post">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="targetUserId" value="@Model.User.UserId" />
-                                <input type="hidden" name="returnUrl"
-                                       value="@Url.Action("Profile", "Users", new { id = Model.User.UserId })" />
-                                <button class="btn btn-outline-secondary btn-sm" type="submit"
-                                        onclick="return confirm('Huỷ kết bạn?')">
-                                    <i class="bi bi-person-dash me-1"></i>Huỷ kết bạn
-                                </button>
-                            </form>
-                        }
-                        else
-                        {
-                            <form asp-controller="Friends" asp-action="Add" method="post">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="targetUserId" value="@Model.User.UserId" />
-                                <input type="hidden" name="returnUrl"
-                                       value="@Url.Action("Profile", "Users", new { id = Model.User.UserId })" />
-                                <button class="btn btn-orange btn-sm" type="submit">
-                                    <i class="bi bi-person-plus me-1"></i>Kết bạn
-                                </button>
-                            </form>
+                            case LocketMini.Application.DTOs.FriendshipRelation.Friends:
+                                <form asp-controller="Friends" asp-action="Remove" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="targetUserId" value="@Model.User.UserId" />
+                                    <input type="hidden" name="returnUrl"
+                                           value="@Url.Action("Profile", "Users", new { id = Model.User.UserId })" />
+                                    <button class="btn btn-outline-secondary btn-sm" type="submit"
+                                            onclick="return confirm('Huỷ kết bạn?')">
+                                        <i class="bi bi-person-dash me-1"></i>Huỷ kết bạn
+                                    </button>
+                                </form>
+                                break;
+
+                            case LocketMini.Application.DTOs.FriendshipRelation.PendingSentByMe:
+                                <form asp-controller="Friends" asp-action="Cancel" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="targetUserId" value="@Model.User.UserId" />
+                                    <input type="hidden" name="returnUrl"
+                                           value="@Url.Action("Profile", "Users", new { id = Model.User.UserId })" />
+                                    <button class="btn btn-outline-secondary btn-sm" type="submit">
+                                        <i class="bi bi-x-circle me-1"></i>Hủy lời mời
+                                    </button>
+                                </form>
+                                break;
+
+                            case LocketMini.Application.DTOs.FriendshipRelation.PendingReceivedByMe:
+                                <form asp-controller="Friends" asp-action="Accept" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="requesterId" value="@Model.User.UserId" />
+                                    <input type="hidden" name="returnUrl"
+                                           value="@Url.Action("Profile", "Users", new { id = Model.User.UserId })" />
+                                    <button class="btn btn-orange btn-sm" type="submit">
+                                        <i class="bi bi-check-circle me-1"></i>Chấp nhận
+                                    </button>
+                                </form>
+                                <form asp-controller="Friends" asp-action="Decline" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="requesterId" value="@Model.User.UserId" />
+                                    <input type="hidden" name="returnUrl"
+                                           value="@Url.Action("Profile", "Users", new { id = Model.User.UserId })" />
+                                    <button class="btn btn-outline-secondary btn-sm" type="submit">
+                                        <i class="bi bi-x-circle me-1"></i>Từ chối
+                                    </button>
+                                </form>
+                                break;
+
+                            default:
+                                <form asp-controller="Friends" asp-action="Send" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="targetUserId" value="@Model.User.UserId" />
+                                    <input type="hidden" name="returnUrl"
+                                           value="@Url.Action("Profile", "Users", new { id = Model.User.UserId })" />
+                                    <button class="btn btn-orange btn-sm" type="submit">
+                                        <i class="bi bi-person-plus me-1"></i>Kết bạn
+                                    </button>
+                                </form>
+                                break;
                         }
                         <a asp-controller="Friends" asp-action="Mutual"
                            asp-route-userId="@Model.User.UserId"

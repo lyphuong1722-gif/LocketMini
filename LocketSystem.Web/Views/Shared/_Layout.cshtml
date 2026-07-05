@@ -46,9 +46,21 @@
                 -webkit-text-fill-color: transparent;
             }
 
-            /* Không đặt màu riêng cho .brand-text / .brand-text-dark:
+                /* Không đặt màu riêng cho .brand-text / .brand-text-dark:
                            để chúng kế thừa gradient từ phần tử cha, tạo hiệu ứng
                            loang màu liền mạch xuyên suốt "LocketMini". */
+
+                /* Icon camera KHÔNG thuộc vùng chữ gradient — trả lại màu gốc
+                           của emoji, tránh bị nhuốm màu xanh/cyan của "LocketMini". */
+                .navbar-brand-locket .brand-icon {
+                    color: initial;
+                    -webkit-text-fill-color: initial;
+                    background: none;
+                    -webkit-background-clip: initial;
+                    background-clip: initial;
+                    margin-right: .2rem;
+                    display: inline-block;
+                }
 
             /* Fallback cho trình duyệt không hỗ trợ background-clip:text */
             @@supports not (background-clip: text) {

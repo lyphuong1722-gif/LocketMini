@@ -45,20 +45,43 @@ public sealed class DbSeeder
         await _db.SaveChangesAsync(ct);
 
         // ── Reload để có UserId từ IDENTITY ──────────────────────────────
-        // Dùng .Value để so sánh string thay vì Value Object
         var adminUser = await _db.Users
-    .Include(u => u.Friends)
-    .FirstAsync(u => u.Username == Username.Create("admin"), ct);
+            .Include(u => u.Friends)
+            .FirstAsync(u => u.Username == Username.Create("admin"), ct);
 
         var namUser = await _db.Users
+            .Include(u => u.Friends)
             .FirstAsync(u => u.Username == Username.Create("nam"), ct);
 
         var linhUser = await _db.Users
+            .Include(u => u.Friends)
             .FirstAsync(u => u.Username == Username.Create("linh"), ct);
 
-        // ── Friends ───────────────────────────────────────────────────────
-        adminUser.AddFriend(namUser);
-        adminUser.AddFriend(linhUser);
+        // ── Friends: admin gửi lời mời cho nam và linh ───────────────────
+        adminUser.SendFriendRequest(namUser.UserId);
+        adminUser.SendFriendRequest(linhUser.UserId);
+        await _db.SaveChangesAsync(ct);
+
+        // ── Chấp nhận lời mời để tạo quan hệ bạn bè hai chiều ─────────────
+        // (admin <-> nam, admin <-> linh đều Accepted; nam/linh không phải bạn bè với nhau)
+        var adminReloaded = await _db.Users
+            .Include(u => u.Friends)
+            .FirstAsync(u => u.UserId == adminUser.UserId, ct);
+
+        var namReloaded = await _db.Users
+            .Include(u => u.Friends)
+            .FirstAsync(u => u.UserId == namUser.UserId, ct);
+
+        var linhReloaded = await _db.Users
+            .Include(u => u.Friends)
+            .FirstAsync(u => u.UserId == linhUser.UserId, ct);
+
+        adminReloaded.MarkRequestAccepted(namUser.UserId);
+        namReloaded.AddAcceptedFriend(adminUser.UserId);
+
+        adminReloaded.MarkRequestAccepted(linhUser.UserId);
+        linhReloaded.AddAcceptedFriend(adminUser.UserId);
+
         await _db.SaveChangesAsync(ct);
 
         // ── Posts ─────────────────────────────────────────────────────────
