@@ -46,6 +46,14 @@ public interface IPostRepository : IRepository<Post>
     Task<IReadOnlyList<Post>> GetByUserAsync(
         int userId,
         CancellationToken ct = default);
+
+    /// <summary>
+    /// Đếm tổng số bài viết của danh sách tác giả (dùng để phân trang Feed chính xác,
+    /// KHÔNG áp dụng Skip/Take).
+    /// </summary>
+    Task<int> CountFeedAsync(
+        IEnumerable<int> authorIds,
+        CancellationToken ct = default);
 }
 
 // ── Comment ───────────────────────────────────────────────────────────────────

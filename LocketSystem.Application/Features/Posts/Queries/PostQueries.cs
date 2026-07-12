@@ -37,10 +37,13 @@ public sealed class GetFeedHandler : IRequestHandler<GetFeedQuery, Result<PagedR
 
         var posts = await _uow.Posts.GetFeedAsync(authorIds, request.Page, request.PageSize, ct);
 
+        // Đếm TỔNG số bài viết thật sự (không phải chỉ số bài trong trang hiện tại)
+        // để HasNextPage/TotalPages tính đúng, tránh nút "Sau" bị mất vĩnh viễn.
+        var totalCount = await _uow.Posts.CountFeedAsync(authorIds, ct);
+
         var dtos = posts.Select(p => MapToDto(p, request.RequesterId)).ToList();
 
-        // Tổng count để phân trang (đơn giản: nếu trả về đủ pageSize thì còn trang tiếp)
-        var pagedResult = new PagedResult<PostDto>(dtos, request.Page, request.PageSize, dtos.Count);
+        var pagedResult = new PagedResult<PostDto>(dtos, request.Page, request.PageSize, totalCount);
         return Result.Success(pagedResult);
     }
 
@@ -146,4 +149,3 @@ public sealed class GetPostStatsHandler : IRequestHandler<GetPostStatsQuery, Res
         return Result.Success(dto);
     }
 }
-

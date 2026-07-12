@@ -44,4 +44,14 @@ public sealed class PostRepository : BaseRepository<Post>, IPostRepository
             .Include(p => p.Comments)
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync(ct);
+
+    /// <summary>
+    /// Đếm tổng số bài viết khớp danh sách tác giả — KHÔNG Skip/Take,
+    /// dùng riêng cho tính TotalCount/TotalPages ở tầng Application.
+    /// </summary>
+    public async Task<int> CountFeedAsync(IEnumerable<int> authorIds, CancellationToken ct = default)
+    {
+        var ids = authorIds.ToList();
+        return await Set.CountAsync(p => ids.Contains(p.UserId), ct);
+    }
 }

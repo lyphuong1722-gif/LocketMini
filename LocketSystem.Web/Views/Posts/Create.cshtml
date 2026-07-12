@@ -38,6 +38,10 @@
                                placeholder="https://example.com/anh.jpg"
                                oninput="previewFromUrl(this.value)" />
                         <span asp-validation-for="ImageUrl" class="text-danger small"></span>
+                        <div id="both-selected-warning" class="form-text text-warning d-none">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            Bạn đã chọn cả file và URL — hệ thống sẽ ưu tiên dùng file ảnh đã chọn từ máy.
+                        </div>
                     </div>
 
                     <div id="img-preview" class="mb-3 d-none">
@@ -62,14 +66,41 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Xem trước ảnh CHỌN TỪ MÁY bằng FileReader (chỉ để xem trước tại chỗ,
-        // KHÔNG phải là URL sẽ lưu vào DB — server sẽ tự lưu file thật khi submit).
+        // ============================================================
+        // Xem trước ảnh — CHỈ lo việc preview, KHÔNG xóa input còn lại.
+        //
+        // Lý do: input type="file" không thể được JS gán lại giá trị
+        // sau khi bị clear (value = ''). Bản cũ từng xóa chéo 2 input
+        // mỗi khi người dùng gõ/chọn cái còn lại, khiến nếu ai đó
+        // chọn file rồi lỡ tay gõ thử vào ô URL rồi xóa đi, file đã
+        // chọn sẽ bị mất vĩnh viễn mà không thể chọn lại bằng JS —
+        // dẫn đến bài đăng bị thiếu ảnh dù caption vẫn hợp lệ.
+        //
+        // Server (PostsController.Create) đã tự ưu tiên ImageFile hơn
+        // ImageUrl khi cả hai đều có giá trị, nên client không cần
+        // và không nên tự ý xóa dữ liệu người dùng đã nhập.
+        // ============================================================
+
+        function getFileInput() {
+            return document.querySelector('input[name="ImageFile"]');
+        }
+        function getUrlInput() {
+            return document.querySelector('input[name="ImageUrl"]');
+        }
+
         function previewFromFile(input) {
             const wrap = document.getElementById('img-preview');
             const img = document.getElementById('preview-img');
             const file = input.files && input.files[0];
 
-            if (!file) { wrap.classList.add('d-none'); return; }
+            if (!file) {
+                // Nếu không còn file nào, chỉ ẩn preview khi URL cũng trống
+                if (!getUrlInput().value.trim()) {
+                    wrap.classList.add('d-none');
+                }
+                updateBothSelectedWarning();
+                return;
+            }
 
             const reader = new FileReader();
             reader.onload = function (e) {
@@ -78,26 +109,35 @@
             };
             reader.readAsDataURL(file);
 
-            // Nếu đã chọn file thì xoá URL nhập tay để tránh xung đột
-            const urlInput = document.querySelector('input[name="ImageUrl"]');
-            if (urlInput) urlInput.value = '';
+            updateBothSelectedWarning();
         }
 
-        // Xem trước khi dán URL ảnh có sẵn
         function previewFromUrl(url) {
             const wrap = document.getElementById('img-preview');
             const img = document.getElementById('preview-img');
+            const fileInput = getFileInput();
 
             if (url && url.startsWith('http')) {
-                img.src = url;
-                wrap.classList.remove('d-none');
-
-                // Nếu đã nhập URL thì bỏ file đã chọn để tránh xung đột
-                const fileInput = document.querySelector('input[name="ImageFile"]');
-                if (fileInput) fileInput.value = '';
-            } else {
+                // Nếu chưa có file nào được chọn, hiển thị preview theo URL
+                if (!fileInput.files.length) {
+                    img.src = url;
+                    wrap.classList.remove('d-none');
+                }
+            } else if (!fileInput.files.length) {
                 wrap.classList.add('d-none');
             }
+
+            updateBothSelectedWarning();
+        }
+
+        // Hiện cảnh báo nhẹ nếu người dùng đang có cả file lẫn URL
+        // để tránh nhầm lẫn ảnh nào sẽ thực sự được đăng.
+        function updateBothSelectedWarning() {
+            const warning = document.getElementById('both-selected-warning');
+            const hasFile = getFileInput().files.length > 0;
+            const hasUrl = getUrlInput().value.trim() !== '';
+
+            warning.classList.toggle('d-none', !(hasFile && hasUrl));
         }
     </script>
 }
