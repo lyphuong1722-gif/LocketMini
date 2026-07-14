@@ -35,12 +35,14 @@ public class RegisterViewModel
     [Display(Name = "Mật khẩu")]
     public string Password { get; set; } = string.Empty;
 
+    [Required(ErrorMessage = "Vui lòng xác nhận mật khẩu.")]
     [Compare(nameof(Password), ErrorMessage = "Mật khẩu xác nhận không khớp.")]
     [DataType(DataType.Password)]
     [Display(Name = "Xác nhận mật khẩu")]
     public string ConfirmPassword { get; set; } = string.Empty;
 
     [StringLength(100)]
+    [RegularExpression(@"^[\p{L}\s]+$", ErrorMessage = "Họ và tên chỉ được chứa chữ cái.")]
     [Display(Name = "Họ và tên")]
     public string? FullName { get; set; }
 
@@ -62,6 +64,7 @@ public class ChangePasswordViewModel
     [Display(Name = "Mật khẩu mới")]
     public string NewPassword { get; set; } = string.Empty;
 
+    [Required(ErrorMessage = "Vui lòng xác nhận mật khẩu mới.")]
     [Compare(nameof(NewPassword), ErrorMessage = "Mật khẩu xác nhận không khớp.")]
     [DataType(DataType.Password)]
     [Display(Name = "Xác nhận mật khẩu mới")]
