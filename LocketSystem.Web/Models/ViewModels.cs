@@ -41,8 +41,15 @@ public class RegisterViewModel
     [Display(Name = "Xác nhận mật khẩu")]
     public string ConfirmPassword { get; set; } = string.Empty;
 
+    // ── FIX: \p{L} không tương thích với client-side JS validation (jQuery Validate
+    // Unobtrusive) — regex Unicode property escape chỉ hoạt động ở .NET server-side,
+    // khiến MỌI giá trị nhập vào đều bị báo lỗi ngay cả khi hợp lệ.
+    // Thay bằng danh sách ký tự tiếng Việt tường minh (chữ hoa + chữ thường + khoảng trắng)
+    // để cả client và server đều hiểu đúng.
     [StringLength(100)]
-    [RegularExpression(@"^[\p{L}\s]+$", ErrorMessage = "Họ và tên chỉ được chứa chữ cái.")]
+    [RegularExpression(
+        @"^[a-zA-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ\s]+$",
+        ErrorMessage = "Họ và tên chỉ được chứa chữ cái.")]
     [Display(Name = "Họ và tên")]
     public string? FullName { get; set; }
 
